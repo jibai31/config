@@ -51,6 +51,8 @@ imap <Tab> <C-N>
 imap <C-L> <Space>=><Space>
 " Indent current file
 map <Leader>i mmgg=G`m<CR>
+" Auto-close HTML tags when typing <//
+iabbrev <// </<C-X><C-O>
 " Other
 map <Leader>co ggVG"*y
 map <Leader>p :set paste<CR>o<esc>"*]p:set nopaste<cr>
