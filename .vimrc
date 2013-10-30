@@ -49,6 +49,8 @@ map <Leader>vg :vsp<cr>:grep
 " Maps auto-complete to tab
 imap <Tab> <C-N>
 imap <C-L> <Space>=><Space>
+" Indent current file
+map <Leader>i gg=G<CR>
 " Other
 map <Leader>co ggVG"*y
 map <Leader>p :set paste<CR>o<esc>"*]p:set nopaste<cr>
@@ -71,8 +73,8 @@ set tags=./tags; " Set the tag file search order
 set backupdir=~/.tmp " Don't clutter my dirs up with swp and tmp files
 set directory=~/.tmp
 set gdefault " Assume the /g flag on :s substitutions to replace all matches in a line
-set autoindent
 set formatoptions-=or " Don't add the comment prefix when I hit enter or o/O on a comment line.
+set pastetoggle=<F2> " Toggle paste/nopaste to avoid auto-indent when pasting code
 
 " %% is the current path
 cabbr <expr> %% expand('%:p:h')
