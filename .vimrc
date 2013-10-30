@@ -50,7 +50,7 @@ map <Leader>vg :vsp<cr>:grep
 imap <Tab> <C-N>
 imap <C-L> <Space>=><Space>
 " Indent current file
-map <Leader>i gg=G<CR>
+map <Leader>i mmgg=G`m<CR>
 " Other
 map <Leader>co ggVG"*y
 map <Leader>p :set paste<CR>o<esc>"*]p:set nopaste<cr>
