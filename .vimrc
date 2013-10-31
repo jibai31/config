@@ -26,6 +26,7 @@ map <Leader>ra :%s/
 map <Leader>sc :tabe db/schema.rb<cr>
 map <Leader>fa :tabe spec/factories.rb<CR>
 map <Leader>rt :tabe config/routes.rb<CR>
+map <Leader>gm :tabe Gemfile<CR>
 " Edit another file in the same directory as the current file
 " uses expression to extract path from current file's path
 map <Leader>e :e <C-R>=expand("%:p:h") . '/'<CR>
