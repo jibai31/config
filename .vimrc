@@ -16,12 +16,12 @@ augroup END
 let mapleader = ","
 map <Leader>vi :tabe ~/.vimrc<CR>
 " Navigation
-map <Leader>sm :RSmodel
+map <Leader>sm :RSmodel 
 map <Leader>sv :RSview 
-map <Leader>sc :RScontroller
-map <Leader>vm :RVmodel<cr>
-map <Leader>vv :RVview<cr>
-map <Leader>vc :RVcontroller<cr>
+map <Leader>sc :RScontroller 
+map <Leader>vm :RVmodel 
+map <Leader>vv :RVview 
+map <Leader>vc :RVcontroller 
 map <Leader>ra :%s/
 map <Leader>sc :tabe db/schema.rb<cr>
 map <Leader>fa :tabe spec/factories.rb<CR>
