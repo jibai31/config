@@ -37,6 +37,7 @@ map <Leader>s :split <C-R>=expand("%:p:h") . '/'<CR>
 map <Leader>v :vnew <C-R>=expand("%:p:h") . '/'<CR>
 map <Leader>t :tabe <C-R>=expand("%:p:h") . '/'<CR>
 " Tests
+map <Leader>tp :!rake db:test:prepare<CR>
 map <Leader>td :!bundle exec rspec % --format documentation<CR>
 map <Leader>tr :!bundle exec rspec spec<CR>
 map <Leader>tt :!bundle exec rspec fast_spec<CR>
