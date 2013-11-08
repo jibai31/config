@@ -22,6 +22,9 @@ map <Leader>sc :RScontroller
 map <Leader>vm :RVmodel 
 map <Leader>vv :RVview 
 map <Leader>vc :RVcontroller 
+map <Leader>rm :RTmodel 
+map <Leader>rv :RTview 
+map <Leader>rc :RTcontroller 
 map <Leader>ra :%s/
 map <Leader>sk :tabe db/schema.rb<cr>
 map <Leader>fa :tabe spec/factories.rb<CR>
