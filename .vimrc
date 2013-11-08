@@ -63,6 +63,7 @@ iabbrev <// </<C-X><C-O>
 " Other
 map <Leader>co ggVG"*y
 map <Leader>p :set paste<CR>o<esc>"*]p:set nopaste<cr>
+map <Leader>ct :!ctags -R --exclude=.git --exclude=log --exclude=*.js --exclude=*.css *<CR>
 
 " Color scheme
 colorscheme vividchalk
