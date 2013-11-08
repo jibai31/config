@@ -50,6 +50,11 @@ map <Leader>bb :!bundle install<CR>
 " Git
 map <Leader>gd :!git diff<CR>
 map <Leader>gs :!git status<CR>
+" CTags
+map <F10> <C-]>
+map <Leader>gt <C-]>
+map <Leader>gg <C-T>
+map <Leader>ct :!ctags -R --exclude=.git --exclude=log --exclude=*.js --exclude=*.css *<CR>
 " Search and replace
 map <Leader>rw :%s/\s\+$//<cr>:w<cr>
 map <Leader>vg :vsp<cr>:grep 
@@ -63,7 +68,6 @@ iabbrev <// </<C-X><C-O>
 " Other
 map <Leader>co ggVG"*y
 map <Leader>p :set paste<CR>o<esc>"*]p:set nopaste<cr>
-map <Leader>ct :!ctags -R --exclude=.git --exclude=log --exclude=*.js --exclude=*.css *<CR>
 
 " Color scheme
 colorscheme vividchalk
