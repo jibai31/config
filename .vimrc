@@ -45,6 +45,8 @@ map <Leader>tm :!bundle exec rspec spec/models<CR>
 map <Leader>tc :!bundle exec rspec spec/controllers<CR>
 map <Leader>tf :!bundle exec rspec spec/features<CR>
 map <Leader>sj :call OpenJasmineSpecInBrowser()<cr>
+" Bundle
+map <Leader>bb :!bundle install<CR>
 " Git
 map <Leader>gd :!git diff<CR>
 map <Leader>gs :!git status<CR>
