@@ -23,7 +23,7 @@ map <Leader>vm :RVmodel
 map <Leader>vv :RVview 
 map <Leader>vc :RVcontroller 
 map <Leader>ra :%s/
-map <Leader>sc :tabe db/schema.rb<cr>
+map <Leader>sk :tabe db/schema.rb<cr>
 map <Leader>fa :tabe spec/factories.rb<CR>
 map <Leader>rt :tabe config/routes.rb<CR>
 map <Leader>gm :tabe Gemfile<CR>
