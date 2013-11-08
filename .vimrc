@@ -52,6 +52,7 @@ map <Leader>gd :!git diff<CR>
 map <Leader>gs :!git status<CR>
 " CTags
 map <F10> <C-]>
+map <F11> <C-W>]
 map <Leader>gt <C-]>
 map <Leader>gg <C-T>
 map <Leader>ct :!ctags -R --exclude=.git --exclude=log --exclude=*.js --exclude=*.css *<CR>
