@@ -17,7 +17,7 @@ Bundle 'gmarik/vundle'
 " My bundles
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-sensible'
-Bundle 'tpope/vim-scriptease.git
+Bundle 'tpope/vim-scriptease'
 Bundle 'tpope/vim-rails'
 Bundle 'tpope/vim-bundler'
 Bundle 'tpope/vim-endwise'
