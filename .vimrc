@@ -1,12 +1,20 @@
-" Minimum config
+" ========================================================================
+" First use
+"   $ mkdir -p ~/.vim/autoload ~/.vim/bundle
+"   $ curl -Sso ~/.vim/autoload/pathogen.vim https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim
+"   $ git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
+"   $ sudo apt-get install exuberant-ctags
+"   $ mkdir ~/.tmp
+"   
+" Then open vim and run the command
+"   :BundleInstall
+" ========================================================================
+
+" Use Pathogen to load bundles
 execute pathogen#infect()
 
 " ========================================================================
-" Vundle stuff
-" Setup:
-"   git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
-" Then in vim, run the command:
-"   :BundleInstall
+" Vundle stuff (manage Vim plugins)
 " ========================================================================
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
