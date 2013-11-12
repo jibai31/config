@@ -109,6 +109,9 @@ iabbrev <// </<C-X><C-O>
 " Other
 map <Leader>co ggVG"*y
 map <Leader>p :set paste<CR>o<esc>"*]p:set nopaste<cr>
+map <C-s> <esc>:w<CR>
+imap <C-s> <esc>:w<CR>
+map <C-t> <esc>:tabnew<CR>
 
 " Color scheme
 colorscheme vividchalk
