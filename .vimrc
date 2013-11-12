@@ -1,5 +1,36 @@
 " Minimum config
 execute pathogen#infect()
+
+" ========================================================================
+" Vundle stuff
+" Setup:
+"   git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
+" Then in vim, run the command:
+"   :BundleInstall
+" ========================================================================
+set rtp+=~/.vim/bundle/vundle/
+call vundle#rc()
+
+" Let Vundle manage Vundle (required)!
+Bundle 'gmarik/vundle'
+
+" My bundles
+Bundle 'tpope/vim-fugitive'
+Bundle 'tpope/vim-sensible'
+Bundle 'tpope/vim-scriptease.git
+Bundle 'tpope/vim-rails'
+Bundle 'tpope/vim-bundler'
+Bundle 'tpope/vim-endwise'
+Bundle 'tpope/vim-commentary'
+Bundle 'tpope/vim-sleuth'
+Bundle 'tpope/vim-repeat'
+Bundle 'tpope/vim-haml'
+Bundle 'tpope/vim-vividchalk'
+Bundle 'ervandew/supertab'
+
+" ================
+" Ruby stuff
+" ================
 syntax on
 filetype plugin indent on
 set number
@@ -15,6 +46,7 @@ augroup END
 " Handy shortcuts
 let mapleader = ","
 map <Leader>vi :tabe ~/.vimrc<CR>
+nmap <Leader>bi :source ~/.vimrc<cr>:BundleInstall<cr>
 " Navigation
 map <Leader>sm :RSmodel 
 map <Leader>sv :RSview 
