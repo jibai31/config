@@ -8,6 +8,13 @@
 "   
 " Then open vim and run the command
 "   :BundleInstall
+"
+" If using PuTTY, Ctrl-S is mapped to XOFF (no terminal output).
+" Disable this by adding those lines in your ~/.bashrc:
+" stty ixany
+" stty ixoff -ixon
+" stty stop undef
+" stty start undef
 " ========================================================================
 
 " Use Pathogen to load bundles
