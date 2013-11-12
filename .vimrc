@@ -106,6 +106,9 @@ imap <C-L> <Space>=><Space>
 map <Leader>i mmgg=G`m<CR>
 " Auto-close HTML tags when typing <//
 iabbrev <// </<C-X><C-O>
+" Move up and down within a long wrapped line
+nmap k gk
+nmap j gj
 " Other
 map <Leader>co ggVG"*y
 map <Leader>p :set paste<CR>o<esc>"*]p:set nopaste<cr>
