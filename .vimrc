@@ -113,6 +113,8 @@ imap <C-L> <Space>=><Space>
 map <Leader>i mmgg=G`m<CR>
 " Auto-close HTML tags when typing <//
 iabbrev <// </<C-X><C-O>
+" Auto-open ERB tags
+map <Leader>< i<% %><esc>hhi
 " Move up and down within a long wrapped line
 nmap k gk
 nmap j gj
