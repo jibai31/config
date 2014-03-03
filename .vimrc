@@ -85,13 +85,13 @@ map <Leader>v :vnew <C-R>=expand("%:p:h") . '/'<CR>
 map <Leader>t :tabe <C-R>=expand("%:p:h") . '/'<CR>
 " Tests
 map <Leader>tp :!rake db:test:prepare<CR>
-map <Leader>td :!bundle exec rspec % --format documentation<CR>
-map <Leader>tr :!bundle exec rspec spec<CR>
-map <Leader>tt :!bundle exec rspec fast_spec<CR>
-map <Leader>tm :!bundle exec rspec spec/models<CR>
-map <Leader>tc :!bundle exec rspec spec/controllers<CR>
-map <Leader>tf :!bundle exec rspec spec/features<CR>
-map <Leader>sj :call OpenJasmineSpecInBrowser()<cr>
+map <Leader>te :w<cr>:!bundle exec rspec % --format documentation<CR>
+map <Leader>tr :w<cr>:!bundle exec rspec spec<CR>
+map <Leader>tt :w<cr>:!bundle exec rspec fast_spec<CR>
+map <Leader>tm :w<cr>:!bundle exec rspec spec/models<CR>
+map <Leader>tc :w<cr>:!bundle exec rspec spec/controllers<CR>
+map <Leader>tf :w<cr>:!bundle exec rspec spec/features<CR>
+map <Leader>sj :w<cr>:call OpenJasmineSpecInBrowser()<cr>
 " Bundle
 map <Leader>bb :!bundle install<CR>
 " Git
