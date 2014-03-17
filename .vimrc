@@ -86,7 +86,8 @@ map <Leader>t :tabe <C-R>=expand("%:p:h") . '/'<CR>
 " Tests
 map <Leader>tp :!rake db:test:prepare<CR>
 map <Leader>te :w<cr>:!bundle exec rspec % --format documentation<CR>
-map <Leader>tr :w<cr>:!bundle exec rspec spec<CR>
+map <Leader>tr :w<cr>:!bundle exec rspec %<CR>
+map <Leader>ta :w<cr>:!bundle exec rspec spec<CR>
 map <Leader>tt :w<cr>:!bundle exec rspec fast_spec<CR>
 map <Leader>tm :w<cr>:!bundle exec rspec spec/models<CR>
 map <Leader>tc :w<cr>:!bundle exec rspec spec/controllers<CR>
