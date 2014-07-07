@@ -78,6 +78,8 @@ map <Leader>sk :tabe db/schema.rb<cr>
 map <Leader>fa :tabe spec/factories.rb<CR>
 map <Leader>rt :tabe config/routes.rb<CR>
 map <Leader>gm :tabe Gemfile<CR>
+map <Leader>en :tabe config/locales/en.yml<CR>
+map <Leader>fr :tabe config/locales/fr.yml<CR>
 map <Leader>nt :NERDTree<CR>
 " Edit another file in the same directory as the current file
 " uses expression to extract path from current file's path
