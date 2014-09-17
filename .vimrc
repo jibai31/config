@@ -103,7 +103,7 @@ map <Leader>bb :!bundle install<CR>
 " Git
 map <Leader>gd :!git diff<CR>
 map <Leader>gs :!git status<CR>
-map <Leader>gg :!git grep<Space>
+map <Leader>gr :!git grep<Space>
 " CTags
 map <F10> <C-]>
 map <F11> <C-W>]
