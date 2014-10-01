@@ -41,6 +41,7 @@ Bundle 'tpope/vim-sleuth'
 Bundle 'tpope/vim-repeat'
 Bundle 'tpope/vim-haml'
 Bundle 'tpope/vim-vividchalk'
+Bundle 'slim-template/vim-slim'
 Bundle 'ervandew/supertab'
 Bundle 'scrooloose/nerdtree'
 
