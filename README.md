@@ -106,6 +106,24 @@ require 'simplecov'
 SimpleCov.start
 ```
 
+## Twitter Bootstrap
+Create a new file called `app/assets/stylesheets/bootstrap_custom.css.scss` containing the import of the bootstrap files and any customization you might need:
+```scss
+$brand-primary: #8E44AD;
+
+@import "bootstrap-sprockets";
+@import "bootstrap";
+```
+
+And update `app/assets/javascripts/application.js` to include Bootstrap:
+```js
+//= require jquery
+//= require jquery_ujs
+//= require turbolinks
+//= require bootstrap-sprockets
+//= require_tree .
+```
+
 ## First commit
 ```
 $ git init
