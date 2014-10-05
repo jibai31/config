@@ -8,12 +8,14 @@ update:  --no-rdoc --no-ri
 ```
 
 Install the latest version of Rails (at the time of writing: Rails 4.1.6):
-
-    $ gem install rails
+```
+$ gem install rails
+```
 
 Create the app without tests (I use Rspec) and with mysql:
-
-    $ rails new my_app -T -d mysql
+```
+$ rails new my_app -T -d mysql
+```
 
 My initial Gemfile includes a few added gems, and Rspec/Capybara/Selenium for tests:
 ```ruby
@@ -22,7 +24,6 @@ ruby '2.1.3'
 
 gem 'rails', '4.1.6'
 gem 'mysql2'
-# gem 'pg', '0.15.1'
 gem 'sass-rails', '~> 4.0.3'
 gem 'uglifier', '>= 1.3.0'
 gem 'coffee-rails', '~> 4.0.0'
@@ -122,62 +123,5 @@ $ git push heroku master
 ```
 
 ## Heroku
-If you're deploying on Heroku you probably want the pg gem to use PostreSQL.
+Follow the additional steps [here](heroku.md) if you're deploying to Heroku.
 
-We're using Postgres locally, so we need to create the DBs manually. Let's first update `config/database.yml`:
-```yml
-development:
-  adapter: postgresql
-  encoding: unicode
-  database: my_app_development
-  pool: 5
-  username: postgres
-  password: 
-
-# Warning: The database defined as "test" will be erased and
-# re-generated from your development database when you run "rake".
-# Do not set this db to the same as development or production.
-test:
-  adapter: postgresql
-  encoding: unicode
-  database: my_app_test
-  pool: 5
-  username: postgres
-  password:
-
-production:
-  adapter: postgresql
-  encoding: unicode
-  database: my_app_production
-  pool: 5
-  username: postgres
-  password: 
-```
-NB: Heroku regenerates `config/database.yml` when you deploy your code there.
-
-Then run the following commands to create empty DBs:
-```
-$ createdb -U postgres antigone_development
-$ createdb -U postgres antigone_test
-$ createdb -U postgres antigone_production
-```
-
-#### Create your own user
-If the user role 'postgres' doesn't have enough rights to create the databases, you should create your own user role:
-```
-$ sudo su postgres -c psql
-> CREATE ROLE vagrant SUPERUSER LOGIN;
-> \q
-```
-
-Then in your database.yml file, use that user instead, without any password:
-```
-  username: vagrant
-  password:
-```
-
-Finally deploy the app to Heroku:
-```
-$ heroku create
-$ git push heroku master
-```
