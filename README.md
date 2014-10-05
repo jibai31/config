@@ -1,6 +1,15 @@
 # How I start a Rails app
 
-## App initialization
+[App initialization](#appInit)
+[Git setup](#gitSetup)
+[Initialize RSpec](#specsSetup)
+[Twitter Bootstrap](#bootstrap)
+[Slim templates](#slim)
+[First commit](#firstCommit)
+[Create local DBs](#createDB)
+[If you want to deploy to Heroku](#heroku)
+
+## <a name="appInit"></a>App initialization
 Suppress the ri and rdoc documentation in ~/.gemrc:
 ```
 install: --no-rdoc --no-ri
@@ -68,7 +77,7 @@ end
 ```
 
 
-## Git setup
+## <a name="gitSetup"></a>Git setup
 Some commands I always run:
 ```
 $ git config --global user.name "Your Name"
@@ -96,7 +105,7 @@ secrets.yml
 /tags
 ```
 
-## Initialize specs
+## <a name="specsSetup"></a>Initialize specs
 ```
 rails generate rspec:install
 ```
@@ -106,7 +115,7 @@ require 'simplecov'
 SimpleCov.start
 ```
 
-## Twitter Bootstrap
+## <a name="bootstrap"></a>Twitter Bootstrap
 Create a new file called `app/assets/stylesheets/bootstrap_custom.css.scss` containing the import of the bootstrap files and any customization you might need:
 ```scss
 $brand-primary: #8E44AD;
@@ -124,7 +133,7 @@ And update `app/assets/javascripts/application.js` to include Bootstrap:
 //= require_tree .
 ```
 
-## Slim templates
+## <a name="slim"></a>Slim templates
 Since you put the gem 'slim-rails' in your `Gemfile`, all new view files will be generated with the slim template (much faster and simpler to use!). But you still need to give a slim extension and update the `app/views/layouts/application.html.erb` that got generated when initializing the app. I recommend splitting this layout already:
 
 ```
@@ -172,7 +181,7 @@ head
         li = link_to 'Contact', '#'
 ```   
 
-## First commit
+## <a name="firstCommit"></a>First commit
 ```
 $ git init
 $ git add .
@@ -182,12 +191,12 @@ $ git push -u origin master
 ```
 
 
-## Create local DBs
+## <a name="createDB"></a>Create local DBs
 ```
 $ bin/rake db:create
 $ git push heroku master
 ```
 
-## Heroku
+## <a name="heroku"></a>Heroku
 Follow the additional steps [here](heroku.md) if you're deploying to Heroku.
 
