@@ -124,6 +124,54 @@ And update `app/assets/javascripts/application.js` to include Bootstrap:
 //= require_tree .
 ```
 
+## Slim templates
+Since you put the gem 'slim-rails' in your `Gemfile`, all new view files will be generated with the slim template (much faster and simpler to use!). But you still need to give a slim extension and update the `app/views/layouts/application.html.erb` that got generated when initializing the app. I recommend splitting this layout already:
+
+```
+# app/views/layouts/application.html.slim
+doctype html
+html
+  = render "layouts/head"
+  body
+    = render "layouts/navbar"
+    .container
+      = yield
+    #footer
+      .container
+        br
+        p.text-muted &copy; MyApp 2014
+```        
+
+```
+# app/views/layouts/_head.html.slim
+head
+  title Smart Social Buffer
+  meta charset="utf-8"
+  meta content="width=device-width, initial-scale=1.0" name="viewport"
+  = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true
+  = javascript_include_tag 'application', 'data-turbolinks-track' => true
+  = csrf_meta_tags
+```   
+
+```
+# app/views/layouts/_navbar.html.slim
+.navbar.navbar-default.navbar-static-top*{role: 'navigation'}
+  .container
+    .navbar-header
+      button.navbar-toggle*{type: 'button', data: {toggle: 'collapse', target: '.navbar-collapse'}}
+        span.sr-only Toggle navigation
+        span.icon-bar
+        span.icon-bar
+        span.icon-bar
+      = link_to root_path, class: 'navbar-brand' do
+        = image_tag 'logo.png', alt: "My App"
+    .collapse.navbar-collapse
+      ul.nav.navbar-nav
+        li.active = link_to 'Home', '#'
+        li = link_to 'About', '#'
+        li = link_to 'Contact', '#'
+```   
+
 ## First commit
 ```
 $ git init
