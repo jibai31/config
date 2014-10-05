@@ -1,13 +1,13 @@
 # How I start a Rails app
 
-[App initialization](#appInit)
-[Git setup](#gitSetup)
-[Initialize RSpec](#specsSetup)
-[Twitter Bootstrap](#bootstrap)
-[Slim templates](#slim)
-[First commit](#firstCommit)
-[Create local DBs](#createDB)
-[If you want to deploy to Heroku](#heroku)
+* [App initialization](#appInit)
+* [Git setup](#gitSetup)
+* [Initialize RSpec](#specsSetup)
+* [Twitter Bootstrap](#bootstrap)
+* [Slim templates](#slim)
+* [First commit](#firstCommit)
+* [Create local DBs](#createDB)
+* [If you want to deploy to Heroku](#heroku)
 
 ## <a name="appInit"></a>App initialization
 Suppress the ri and rdoc documentation in ~/.gemrc:
