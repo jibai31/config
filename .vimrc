@@ -142,7 +142,7 @@ map <Leader>p :set paste<CR>o<esc>"*]p:set nopaste<cr>
 map <C-s> <esc>:w<CR>
 imap <C-s> <esc>:w<CR>
 map <C-t> <esc>:tabnew<CR>
-map <F4> <esc>:q!<CR>
+map <F4> :q!<CR>
 
 " Color scheme
 colorscheme vividchalk
