@@ -108,8 +108,16 @@ map <Leader>gd :!git diff<CR>
 map <Leader>gs :!git status<CR>
 map <Leader>gr :!git grep<Space>
 " CTags
+" F9: open preview
+" F5: close preview
+" F10: open tag in current tab
+" F11: open tag in horizontal split
+" F12: open tag in new tab
+map <F9> <C-w>}
+map <F5> <C-w>z
 map <F10> <C-]>
 map <F11> <C-W>]
+map <F12> <C-w><C-]><C-w>T
 map <Leader>gt <C-]>
 map <Leader>gg <C-T>
 map <Leader>ct :!ctags -R --exclude=.git --exclude=log --exclude=*.js --exclude=*.css *<CR>
