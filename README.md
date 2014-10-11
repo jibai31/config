@@ -133,6 +133,11 @@ And update `app/assets/javascripts/application.js` to include Bootstrap:
 //= require_tree .
 ```
 
+Now tell SimpleForm to generate forms with Bootstrap classes:
+```
+$ rails generate simple_form:install --bootstrap
+```
+
 ## <a name="slim"></a>Slim templates
 Since you put the gem 'slim-rails' in your `Gemfile`, all new view files will be generated with the slim template (much faster and simpler to use!). But you still need to give a slim extension and update the `app/views/layouts/application.html.erb` that got generated when initializing the app. I recommend splitting this layout already:
 
