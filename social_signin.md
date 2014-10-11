@@ -18,7 +18,7 @@ gem 'omniauth-facebook', '~>1.5.1'
 ### Tests first
 You probably want to write your tests first. Those will be high-level functional tests ensuring the signin/signup workflow works as expected:
 
-[Social signin Tests](social_signin_test.md)
+[Social signin Tests](social_signin_tests.md)
 
 ### Create your Model
 Let's first initialize Devise that will be used for our app authentication:
