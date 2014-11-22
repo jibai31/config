@@ -84,8 +84,19 @@ map <Leader>fr :tabe config/locales/fr.yml<CR>
 map <Leader>ab :tabe app/models/ability.rb<CR>
 map <Leader>nt :NERDTree<CR>
 map <Leader>rr :!rake routes \| grep<Space>
-nmap <Tab> gt
-nmap <S-Tab> gT
+nnoremap <Tab> <C-w>w
+nnoremap <S-Tab> <C-w>k
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+noremap <C-H> <C-W><C-H>
+" <C-w> _   --> Max out the height of the current split
+" <C-w> |   --> Max out the width of the current split
+" <C-w> =   --> Normalize all split sizes, which is very handy when resizing
+" <C-w> R   --> Swap top/bottom or left/right split
+" <C-w> T   --> Break out current window into a new tabview
+" <C-w> o   --> Close every window in the current tabview but the current one
+
 " Edit another file in the same directory as the current file
 " uses expression to extract path from current file's path
 map <Leader>e :e <C-R>=expand("%:p:h") . '/'<CR>
