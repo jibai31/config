@@ -84,6 +84,8 @@ map <Leader>fr :tabe config/locales/fr.yml<CR>
 map <Leader>ab :tabe app/models/ability.rb<CR>
 map <Leader>nt :NERDTree<CR>
 map <Leader>rr :!rake routes \| grep<Space>
+nmap <Tab> gt
+nmap <S-Tab> gT
 " Edit another file in the same directory as the current file
 " uses expression to extract path from current file's path
 map <Leader>e :e <C-R>=expand("%:p:h") . '/'<CR>
