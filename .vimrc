@@ -108,6 +108,7 @@ map <Leader>tp :!rake db:test:prepare<CR>
 map <Leader>te :w<cr>:!bundle exec rspec % --format documentation --tag ~js<CR>
 map <Leader>tr :w<cr>:!bundle exec rspec % --tag ~js<CR>
 map <Leader>ta :w<cr>:!bundle exec rspec spec --tag ~js<CR>
+map <Leader>tz :w<cr>:!bundle exec rspec spec -fd --tag ~js<CR>
 map <Leader>ts :w<cr>:!bundle exec rspec spec<CR>
 map <Leader>tt :w<cr>:!bundle exec rspec fast_spec<CR>
 map <Leader>tm :w<cr>:!bundle exec rspec spec/models<CR>
