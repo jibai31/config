@@ -42,6 +42,7 @@ Bundle 'tpope/vim-repeat'
 Bundle 'tpope/vim-haml'
 Bundle 'tpope/vim-vividchalk'
 Bundle 'slim-template/vim-slim'
+Bundle 'genoma/vim-less'
 Bundle 'ervandew/supertab'
 Bundle 'scrooloose/nerdtree'
 
