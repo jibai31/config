@@ -106,15 +106,15 @@ map <Leader>v :vnew <C-R>=expand("%:p:h") . '/'<CR>
 map <Leader>t :tabe <C-R>=expand("%:p:h") . '/'<CR>
 " Tests
 map <Leader>tp :!rake db:test:prepare<CR>
-map <Leader>te :w<cr>:!bundle exec rspec % --format documentation --tag ~js<CR>
-map <Leader>tr :w<cr>:!bundle exec rspec % --tag ~js<CR>
-map <Leader>ta :w<cr>:!bundle exec rspec spec --tag ~js<CR>
-map <Leader>tz :w<cr>:!bundle exec rspec spec -fd --tag ~js<CR>
-map <Leader>ts :w<cr>:!bundle exec rspec spec<CR>
-map <Leader>tt :w<cr>:!bundle exec rspec fast_spec<CR>
-map <Leader>tm :w<cr>:!bundle exec rspec spec/models<CR>
-map <Leader>tc :w<cr>:!bundle exec rspec spec/controllers<CR>
-map <Leader>tf :w<cr>:!bundle exec rspec spec/features<CR>
+map <Leader>te :w<cr>:!rspec % --format documentation --tag ~js<CR>
+map <Leader>tr :w<cr>:!rspec % --tag ~js<CR>
+map <Leader>ta :w<cr>:!rspec spec --tag ~js<CR>
+map <Leader>tz :w<cr>:!rspec spec -fd --tag ~js<CR>
+map <Leader>ts :w<cr>:!rspec spec<CR>
+map <Leader>tt :w<cr>:!rspec fast_spec<CR>
+map <Leader>tm :w<cr>:!rspec spec/models<CR>
+map <Leader>tc :w<cr>:!rspec spec/controllers<CR>
+map <Leader>tf :w<cr>:!rspec spec/features<CR>
 map <Leader>sj :w<cr>:call OpenJasmineSpecInBrowser()<cr>
 " Bundle
 map <Leader>bb :!bundle install<CR>
