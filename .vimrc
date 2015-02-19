@@ -153,6 +153,8 @@ map <Leader>< i<% %><esc>hhi
 " Move up and down within a long wrapped line
 nmap k gk
 nmap j gj
+" Dropbox
+map <Leader>dn :tabe ~/Dropbox/Rails/rails-freelance-neocamino.txt<cr>
 " Other
 map <Leader>co ggVG"*y
 map <Leader>p :set paste<CR>o<esc>"*]p:set nopaste<cr>
