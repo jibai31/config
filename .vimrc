@@ -98,6 +98,8 @@ noremap <C-H> <C-W><C-H>
 " <C-w> T   --> Break out current window into a new tabview
 " <C-w> o   --> Close every window in the current tabview but the current one
 
+" Easier on Mac
+map := :!
 " Edit another file in the same directory as the current file
 " uses expression to extract path from current file's path
 map <Leader>e :e <C-R>=expand("%:p:h") . '/'<CR>
