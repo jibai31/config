@@ -130,11 +130,13 @@ map <Leader>gr :!git grep<Space>
 " F10: open tag in current tab
 " F11: open tag in horizontal split
 " F12: open tag in new tab
+" Delete: back to previous location
 map <F9> <C-w>}
 map <F5> <C-w>z
 map <F10> <C-]>
 map <F11> <C-W>]
 map <F12> <C-w><C-]><C-w>T
+map <BS> <C-o>
 map ga :A<CR>
 map gr :R<CR>
 map <Leader>gt <C-]>
