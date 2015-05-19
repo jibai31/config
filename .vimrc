@@ -150,6 +150,7 @@ imap <Tab> <C-N>
 imap <C-L> <Space>=><Space>
 " Indent current file
 map <Leader>i mmgg=G`m<CR>
+map <Leader>j :%s/\t/  /<CR>
 " Auto-close HTML tags when typing <//
 iabbrev <// </<C-X><C-O>
 " Auto-open ERB tags
