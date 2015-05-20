@@ -94,9 +94,15 @@ noremap <C-H> <C-W><C-H>
 " <C-w> _   --> Max out the height of the current split
 " <C-w> |   --> Max out the width of the current split
 " <C-w> =   --> Normalize all split sizes, which is very handy when resizing
+" 10 <C-w> >   --> Extend the current vertical buffer by 10 chars to the left
+" 10 <C-w> <   --> Extend the current vertical buffer by 10 chars to the right
+" 10 <C-w> -   --> Extend the current horizontal buffer by 10 chars to the top
+" 10 <C-w> +   --> Extend the current horizontal buffer by 10 chars to the bottom
 " <C-w> R   --> Swap top/bottom or left/right split
 " <C-w> T   --> Break out current window into a new tabview
 " <C-w> o   --> Close every window in the current tabview but the current one
+map - <C-w>-
+map + <C-w>+
 
 " Easier on Mac
 map := :!
