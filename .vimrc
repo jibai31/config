@@ -133,12 +133,14 @@ map <Leader>gr :!git grep<Space>
 " CTags
 " F9: open preview
 " F5: close preview
+" F8: open tag in horizontal split (when F11 doesn't work)
 " F10: open tag in current tab
 " F11: open tag in horizontal split
 " F12: open tag in new tab
 " Delete: back to previous location
 map <F9> <C-w>}
 map <F5> <C-w>z
+map <F8> <C-w>f
 map <F10> <C-]>
 map <F11> <C-W>]
 map <F12> <C-w><C-]><C-w>T
