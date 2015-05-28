@@ -65,6 +65,7 @@ augroup END
 let mapleader = ","
 map <Leader>vi :tabe ~/.vimrc<CR>
 nmap <Leader>bi :source ~/.vimrc<cr>:BundleInstall<cr>
+map <Leader>ee i# encoding: utf-8<ESC>o<BS><BS>
 " Navigation
 map <Leader>sm :RSmodel 
 map <Leader>sv :RSview 
