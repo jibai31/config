@@ -113,18 +113,22 @@ map <Leader>e :e <C-R>=expand("%:p:h") . '/'<CR>
 map <Leader>s :split <C-R>=expand("%:p:h") . '/'<CR>
 map <Leader>v :vnew <C-R>=expand("%:p:h") . '/'<CR>
 map <Leader>t :tabe <C-R>=expand("%:p:h") . '/'<CR>
+map <Leader>sj :split app/assets/javascripts/
+map <Leader>ss :split app/assets/stylesheets/
+map <Leader>ej :e app/assets/javascripts/
+map <Leader>es :e app/assets/stylesheets/
+map <Leader>tj :tabe app/assets/javascripts/
+map <Leader>ts :tabe app/assets/stylesheets/
 " Tests
 map <Leader>tp :!rake db:test:prepare<CR>
 map <Leader>te :w<cr>:!rspec % --format documentation --tag ~js<CR>
 map <Leader>tr :w<cr>:!rspec % --tag ~js<CR>
 map <Leader>ta :w<cr>:!rspec spec --tag ~js<CR>
 map <Leader>tz :w<cr>:!rspec spec -fd --tag ~js<CR>
-map <Leader>ts :w<cr>:!rspec spec<CR>
 map <Leader>tt :w<cr>:!rspec fast_spec<CR>
 map <Leader>tm :w<cr>:!rspec spec/models<CR>
 map <Leader>tc :w<cr>:!rspec spec/controllers<CR>
 map <Leader>tf :w<cr>:!rspec spec/features<CR>
-map <Leader>sj :w<cr>:call OpenJasmineSpecInBrowser()<cr>
 " Bundle
 map <Leader>bb :!bundle install<CR>
 " Git
