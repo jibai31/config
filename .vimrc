@@ -180,6 +180,7 @@ map <C-s> <esc>:w<CR>
 imap <C-s> <esc>:w<CR>
 map <C-t> <esc>:tabnew<CR>
 map <F4> :q!<CR>
+map :wsudo<CR> :w !sudo tee %<CR>
 
 " Color scheme
 colorscheme vividchalk
