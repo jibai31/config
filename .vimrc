@@ -176,6 +176,7 @@ map <Leader>dn :tabe ~/Dropbox/Rails/rails-freelance-neocamino.txt<cr>
 " Other
 map <Leader>co ggVG"*y
 map <Leader>p :set paste<CR>o<esc>"*]p:set nopaste<cr>
+map s :w<CR>
 map <C-s> <esc>:w<CR>
 imap <C-s> <esc>:w<CR>
 map <C-t> <esc>:tabnew<CR>
