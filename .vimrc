@@ -104,6 +104,8 @@ noremap <C-H> <C-W><C-H>
 " <C-w> o   --> Close every window in the current tabview but the current one
 map - <C-w>-
 map + <C-w>+
+map _ <C-w>_
+map = <C-w>=
 
 " Easier on Mac
 map := :!
