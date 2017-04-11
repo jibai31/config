@@ -5,7 +5,7 @@
 "   $ git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
 "   $ sudo apt-get install exuberant-ctags
 "   $ mkdir ~/.tmp
-"   
+"
 " Then open vim and run the command
 "   :BundleInstall
 "
@@ -41,10 +41,13 @@ Bundle 'tpope/vim-sleuth'
 Bundle 'tpope/vim-repeat'
 Bundle 'tpope/vim-haml'
 Bundle 'tpope/vim-vividchalk'
-Bundle 'slim-template/vim-slim'
-Bundle 'genoma/vim-less'
 Bundle 'ervandew/supertab'
 Bundle 'scrooloose/nerdtree'
+Bundle 'slim-template/vim-slim'
+Bundle 'genoma/vim-less'
+Bundle 'janko-m/vim-test'
+Bundle 'tpope/vim-dispatch'
+Bundle 'wincent/command-t'
 
 " ================
 " Ruby stuff
@@ -91,7 +94,7 @@ nnoremap <S-Tab> <C-w>k
 nnoremap <C-J> <C-W><C-J>
 nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
-noremap <C-H> <C-W><C-H>
+nnoremap <C-H> <C-W><C-H>
 " <C-w> _   --> Max out the height of the current split
 " <C-w> |   --> Max out the width of the current split
 " <C-w> =   --> Normalize all split sizes, which is very handy when resizing
@@ -137,6 +140,7 @@ map <Leader>bb :!bundle install<CR>
 map <Leader>gd :!git diff<CR>
 map <Leader>gs :!git status<CR>
 map <Leader>gr :!git grep<Space>
+nnoremap K :Ggrep <C-R><C-W><CR>:cw<CR><CR>
 " CTags
 " F9: open preview
 " F5: close preview
@@ -184,6 +188,8 @@ imap <C-s> <esc>:w<CR>
 map <C-t> <esc>:tabnew<CR>
 map <F4> :q!<CR>
 map :wsudo<CR> :w !sudo tee %<CR>
+map <Leader>nn :set nonumber<CR>
+map <Leader>ni :set number<CR>
 
 " Color scheme
 colorscheme vividchalk
