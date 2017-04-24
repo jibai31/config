@@ -88,7 +88,7 @@ map <Leader>en :tabe config/locales/en.yml<CR>
 map <Leader>fr :tabe config/locales/fr.yml<CR>
 map <Leader>ab :tabe app/models/ability.rb<CR>
 map <Leader>nt :NERDTree<CR>
-map <Leader>rr :!rake routes \| grep<Space>
+map <Leader>rr :!bin/rake routes \| grep<Space>
 nnoremap <Tab> <C-w>w
 nnoremap <S-Tab> <C-w>k
 nnoremap <C-J> <C-W><C-J>
@@ -125,15 +125,12 @@ map <Leader>es :e app/assets/stylesheets/
 map <Leader>tj :tabe app/assets/javascripts/
 map <Leader>ts :tabe app/assets/stylesheets/
 " Tests
-map <Leader>tp :!rake db:test:prepare<CR>
-map <Leader>tr :w<cr>:!rspec % --tag ~js<CR>
-map <Leader>te :w<cr>:!rspec % --format documentation --tag ~js<CR>
-map <Leader>tz :w<cr>:!rspec spec --tag ~js<CR>
-map <Leader>ta :w<cr>:!rspec spec -fd --tag ~js<CR>
-map <Leader>tt :w<cr>:!rspec fast_spec<CR>
-map <Leader>tm :w<cr>:!rspec spec/models<CR>
-map <Leader>tc :w<cr>:!rspec spec/controllers<CR>
-map <Leader>tf :w<cr>:!rspec spec/features<CR>
+map <Leader>tr :w<cr>:!bin/rspec % --tag ~js<CR>
+map <Leader>te :w<cr>:!bin/rspec % --format documentation --tag ~js<CR>
+map <Leader>tz :w<cr>:!bin/rspec spec --tag ~js<CR>
+map <Leader>ta :w<cr>:!bin/rspec spec -fd --tag ~js<CR>
+map <Leader>tm :w<cr>:!bin/rspec spec/models<CR>
+map <Leader>tf :w<cr>:!bin/rspec spec/features<CR>
 " Bundle
 map <Leader>bb :!bundle install<CR>
 " Git
