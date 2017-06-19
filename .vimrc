@@ -1,3 +1,6 @@
+set nocompatible              " be iMproved, required
+filetype off                  " required
+
 " ========================================================================
 " First use
 "   $ mkdir -p ~/.vim/autoload ~/.vim/bundle
