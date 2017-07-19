@@ -10,6 +10,7 @@ Plugin 'VundleVim/Vundle.vim'
 
 " My bundles
 Plugin 'tpope/vim-fugitive'
+Plugin 'tpope/vim-surround'
 Plugin 'tpope/vim-sensible'
 Plugin 'tpope/vim-scriptease'
 Plugin 'tpope/vim-rails'
@@ -128,6 +129,13 @@ map <Leader>ej :e app/assets/javascripts/
 map <Leader>es :e app/assets/stylesheets/
 map <Leader>tj :tabe app/assets/javascripts/
 map <Leader>ts :tabe app/assets/stylesheets/
+
+" Vim Surround: https://github.com/tpope/vim-surround
+" cs"'     Replaces surrounding double quotes with single quotes
+" cs'<p>   Now with <p></p>
+" cst"     Now back to double quotes
+" ds"      Removes the quotes
+" ysiw<em> For just the current word (iw = text object)
 
 " CtrlP to find files
 map <Leader>f :CtrlPMixed<CR>
