@@ -1,16 +1,46 @@
 set nocompatible              " be iMproved, required
+filetype on                   " required for compatibility with Mac OS X, See issue #167
 filetype off                  " required
+
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+" Let Vundle manage Vundle (required)!
+Plugin 'VundleVim/Vundle.vim'
+
+" My bundles
+Plugin 'tpope/vim-fugitive'
+Plugin 'tpope/vim-sensible'
+Plugin 'tpope/vim-scriptease'
+Plugin 'tpope/vim-rails'
+Plugin 'tpope/vim-bundler'
+Plugin 'tpope/vim-endwise'
+Plugin 'tpope/vim-commentary'
+Plugin 'tpope/vim-sleuth'
+Plugin 'tpope/vim-repeat'
+Plugin 'tpope/vim-haml'
+Plugin 'tpope/vim-vividchalk'
+Plugin 'ervandew/supertab'
+Plugin 'scrooloose/nerdtree'
+Plugin 'slim-template/vim-slim'
+Plugin 'genoma/vim-less'
+Plugin 'janko-m/vim-test'
+Plugin 'tpope/vim-dispatch'
+Plugin 'ctrlpvim/ctrlp.vim'
+
+call vundle#end()             " required
+filetype plugin indent on     " required
 
 " ========================================================================
 " First use
 "   $ mkdir -p ~/.vim/autoload ~/.vim/bundle
 "   $ curl -Sso ~/.vim/autoload/pathogen.vim https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim
-"   $ git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
+"   $ git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 "   $ sudo apt-get install exuberant-ctags
 "   $ mkdir ~/.tmp
 "
 " Then open vim and run the command
-"   :BundleInstall
+"   :PluginInstall
 "
 " If using PuTTY, Ctrl-S is mapped to XOFF (no terminal output).
 " Disable this by adding those lines in your ~/.bashrc:
@@ -23,40 +53,10 @@ filetype off                  " required
 " Use Pathogen to load bundles
 execute pathogen#infect()
 
-" ========================================================================
-" Vundle stuff (manage Vim plugins)
-" ========================================================================
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
-
-" Let Vundle manage Vundle (required)!
-Bundle 'gmarik/vundle'
-
-" My bundles
-Bundle 'tpope/vim-fugitive'
-Bundle 'tpope/vim-sensible'
-Bundle 'tpope/vim-scriptease'
-Bundle 'tpope/vim-rails'
-Bundle 'tpope/vim-bundler'
-Bundle 'tpope/vim-endwise'
-Bundle 'tpope/vim-commentary'
-Bundle 'tpope/vim-sleuth'
-Bundle 'tpope/vim-repeat'
-Bundle 'tpope/vim-haml'
-Bundle 'tpope/vim-vividchalk'
-Bundle 'ervandew/supertab'
-Bundle 'scrooloose/nerdtree'
-Bundle 'slim-template/vim-slim'
-Bundle 'genoma/vim-less'
-Bundle 'janko-m/vim-test'
-Bundle 'tpope/vim-dispatch'
-Bundle 'wincent/command-t'
-
 " ================
 " Ruby stuff
 " ================
 syntax on
-filetype plugin indent on
 set number
 
 " From Ben Orenstein
@@ -70,7 +70,7 @@ augroup END
 " Handy shortcuts
 let mapleader = ","
 map <Leader>vi :tabe ~/.vimrc<CR>
-nmap <Leader>bi :source ~/.vimrc<cr>:BundleInstall<cr>
+nmap <Leader>bi :source ~/.vimrc<cr>:PluginInstall<cr>
 map <Leader>ee i# encoding: utf-8<ESC>o<BS><BS>
 " Navigation
 map <Leader>sm :RSmodel 
@@ -92,6 +92,7 @@ map <Leader>fr :tabe config/locales/fr.yml<CR>
 map <Leader>ab :tabe app/models/ability.rb<CR>
 map <Leader>nt :NERDTree<CR>
 map <Leader>rr :!bin/rake routes \| grep<Space>
+map <Leader>lm :Smigration<CR>
 nnoremap <Tab> <C-w>w
 nnoremap <S-Tab> <C-w>k
 nnoremap <C-J> <C-W><C-J>
@@ -127,7 +128,21 @@ map <Leader>ej :e app/assets/javascripts/
 map <Leader>es :e app/assets/stylesheets/
 map <Leader>tj :tabe app/assets/javascripts/
 map <Leader>ts :tabe app/assets/stylesheets/
+
+" CtrlP to find files
+map <Leader>f :CtrlPMixed<CR>
+let g:ctrlp_cmd = 'CtrlPMixed'
+" <c-p>   Start normal mode
+" <c-t>   Open the selected file in a new 'tab'.
+" <c-v>   Open the selected file in a 'vertical' split.
+" <c-x>, <c-cr>, <c-s> Open the selected file in a 'horizontal' split.
+" Search '_navigation:45' Open at line 45
+" <c-f> and <c-b> to cycle between modes
+" <F5> to purge the cache for the current directory to get new files, remove
+" deleted files and apply new ignore option
+
 " Tests
+map <Leader>tt :w<cr>:call RSpecCurrent()<CR>
 map <Leader>tr :w<cr>:!bin/rspec % --tag ~js<CR>
 map <Leader>te :w<cr>:!bin/rspec % --format documentation --tag ~js<CR>
 map <Leader>tz :w<cr>:!bin/rspec spec --tag ~js<CR>
@@ -231,6 +246,15 @@ highlight def link rubyFunction Function
 " When loading text files, wrap them and don't split up words.
 au BufNewFile,BufRead *.txt setlocal wrap 
 au BufNewFile,BufRead *.txt setlocal lbr
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" RSPEC MACROS
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+function! RSpecCurrent()
+  execute("!bin/rspec " . expand("%p") . ":" . line("."))
+endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " RENAME CURRENT FILE (thanks Gary Bernhardt)
