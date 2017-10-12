@@ -174,6 +174,7 @@ nnoremap K :Ggrep <C-R><C-W><CR>:cw<CR><CR>
 " Delete: back to previous location
 map <F9> <C-w>}
 map <F5> <C-w>z
+map <F7> <C-w><C-]><C-w>L
 map <F8> <C-w>f
 map <F10> <C-]>
 map <F11> <C-W>]
