@@ -1,47 +1,22 @@
 set nocompatible              " be iMproved, required
 filetype on                   " required for compatibility with Mac OS X, See issue #167
 filetype off                  " required
-
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-
-" Let Vundle manage Vundle (required)!
-Plugin 'VundleVim/Vundle.vim'
-
-" My bundles
-Plugin 'tpope/vim-fugitive'
-Plugin 'tpope/vim-surround'
-Plugin 'tpope/vim-sensible'
-Plugin 'tpope/vim-scriptease'
-Plugin 'tpope/vim-rails'
-Plugin 'tpope/vim-bundler'
-Plugin 'tpope/vim-endwise'
-Plugin 'tpope/vim-commentary'
-Plugin 'tpope/vim-sleuth'
-Plugin 'tpope/vim-repeat'
-Plugin 'tpope/vim-haml'
-Plugin 'tpope/vim-vividchalk'
-Plugin 'ervandew/supertab'
-Plugin 'scrooloose/nerdtree'
-Plugin 'slim-template/vim-slim'
-Plugin 'genoma/vim-less'
-Plugin 'janko-m/vim-test'
-Plugin 'tpope/vim-dispatch'
-Plugin 'ctrlpvim/ctrlp.vim'
-
-call vundle#end()             " required
 filetype plugin indent on     " required
 
 " ========================================================================
-" First use
-"   $ mkdir -p ~/.vim/autoload ~/.vim/bundle
-"   $ curl -Sso ~/.vim/autoload/pathogen.vim https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim
-"   $ git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+" FIRST SETUP
+" ========================================================================
+" Setup external dependencies and create temp folder:
+"
 "   $ sudo apt-get install exuberant-ctags
 "   $ mkdir ~/.tmp
 "
-" Then open vim and run the command
-"   :PluginInstall
+" Plugins are managed with Vim 8 plugin manager
+" Simply place plugins to ~/.vim/pack/**/start
+"
+"   $ mkdir -p ~/.vim/pack/tpope/start
+"   $ cd ~/.vim/pack/tpope/start
+"   $ git clone https://tpope.io/vim/dispatch.git
 "
 " If using PuTTY, Ctrl-S is mapped to XOFF (no terminal output).
 " Disable this by adding those lines in your ~/.bashrc:
@@ -50,9 +25,6 @@ filetype plugin indent on     " required
 " stty stop undef
 " stty start undef
 " ========================================================================
-
-" Use Pathogen to load bundles
-execute pathogen#infect()
 
 " ================
 " Ruby stuff
@@ -87,6 +59,7 @@ map <Leader>ra :%s/
 map <Leader>sk :tabe db/schema.rb<cr>
 map <Leader>fa :tabe spec/factories.rb<CR>
 map <Leader>rt :tabe config/routes.rb<CR>
+map <Leader>sc :tabe config/schedule.rb<cr>
 map <Leader>gm :tabe Gemfile<CR>
 map <Leader>en :tabe config/locales/en.yml<CR>
 map <Leader>fr :tabe config/locales/fr.yml<CR>
@@ -94,6 +67,7 @@ map <Leader>ab :tabe app/models/ability.rb<CR>
 map <Leader>nt :NERDTree<CR>
 map <Leader>rr :!bin/rake routes \| grep<Space>
 map <Leader>lm :Smigration<CR>
+map <Leader>lt :sp lib/tasks/
 nnoremap <Tab> <C-w>w
 nnoremap <S-Tab> <C-w>k
 nnoremap <C-J> <C-W><C-J>
@@ -167,6 +141,8 @@ nnoremap K :Ggrep <C-R><C-W><CR>:cw<CR><CR>
 " CTags
 " F9: open preview
 " F5: close preview
+" F6: move tab to new window
+" F7: open tag in vertical split
 " F8: open tag in horizontal split (when F11 doesn't work)
 " F10: open tag in current tab
 " F11: open tag in horizontal split
@@ -174,6 +150,7 @@ nnoremap K :Ggrep <C-R><C-W><CR>:cw<CR><CR>
 " Delete: back to previous location
 map <F9> <C-w>}
 map <F5> <C-w>z
+map <F6> <C-w>T
 map <F7> <C-w><C-]><C-w>L
 map <F8> <C-w>f
 map <F10> <C-]>
@@ -184,7 +161,7 @@ map ga :A<CR>
 map gr :R<CR>
 map <Leader>gt <C-]>
 map <Leader>gg <C-T>
-map <Leader>ct :!ctags -R --exclude=.git --exclude=log --exclude=*.js --exclude=*.css *<CR>
+map <Leader>ct :!ctags -R<CR>
 " Search and replace
 map <Leader>rw :%s/\s\+$//<cr>:w<cr>
 map <Leader>vg :vsp<cr>:grep 
