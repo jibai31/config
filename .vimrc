@@ -43,7 +43,7 @@ augroup END
 " Handy shortcuts
 let mapleader = ","
 map <Leader>vi :tabe ~/.vimrc<CR>
-nmap <Leader>bi :source ~/.vimrc<cr>:PluginInstall<cr>
+nmap <Leader>bi :source ~/.vimrc<cr>
 map <Leader>ee i# encoding: utf-8<ESC>o<BS><BS>
 " Navigation
 map <Leader>sm :RSmodel 
@@ -193,13 +193,15 @@ map <Leader>nn :set nonumber<CR>
 map <Leader>ni :set number<CR>
 
 " Color scheme
+" colorscheme distinguished
+" colorscheme candy
 colorscheme vividchalk
-highlight NonText guibg=#060606
-highlight Folded  guibg=#0A0A0A guifg=#9090D0
+" highlight NonText guibg=#060606
+" highlight Folded  guibg=#0A0A0A guifg=#9090D0
 
 " Tab completion options
 " (only complete to the longest unambiguous match, and show a menu)
-:highlight PmenuSel ctermfg=black
+highlight PmenuSel ctermfg=black
 set completeopt=longest,menu
 set wildmode=list:longest,list:full
 set complete=.,t
@@ -217,8 +219,12 @@ set pastetoggle=<F2> " Toggle paste/nopaste to avoid auto-indent when pasting co
 cabbr <expr> %% expand('%:p:h')
 
 " Show trailing white spaces
-:highlight ExtraWhitespace ctermbg=red guibg=red
-:match ExtraWhitespace /\s\+$/
+highlight ExtraWhitespace ctermbg=red guibg=red
+match ExtraWhitespace /\s\+$/
+autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
+autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
+autocmd InsertLeave * match ExtraWhitespace /\s\+$/
+autocmd BufWinLeave * call clearmatches()
 
 " Fuzzy finder: ignore stuff that can't be opened, and generated files
 let g:fuzzy_ignore = "*.png;*.PNG;*.JPG;*.jpg;*.GIF;*.gif;vendor/**;coverage/**;tmp/**;rdoc/**"
