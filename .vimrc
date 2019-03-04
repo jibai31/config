@@ -193,9 +193,13 @@ map <Leader>nn :set nonumber<CR>
 map <Leader>ni :set number<CR>
 
 " Color scheme
+" syntax enable
+" set background=dark
 " colorscheme distinguished
 " colorscheme candy
 colorscheme vividchalk
+" colorscheme railscasts
+" colorscheme solarized
 " highlight NonText guibg=#060606
 " highlight Folded  guibg=#0A0A0A guifg=#9090D0
 
