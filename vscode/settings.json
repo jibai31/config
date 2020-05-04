@@ -1,0 +1,73 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "[yaml]": {
+    "editor.formatOnSave": false
+  },
+  "editor.tabSize": 2,
+  "editor.rulers": [
+    117
+  ],
+  "editor.minimap.enabled": false,
+  "workbench.editor.enablePreview": false,
+  "emmet.showExpandedAbbreviation": "never",
+  "vim.leader": ",",
+  "vim.insertModeKeyBindings": [
+    {
+      "before": [],
+      "after": []
+    }
+  ],
+  "vim.normalModeKeyBindingsNonRecursive": [
+    { "before": [ "-" ], "commands": [ "workbench.action.decreaseViewSize" ] },
+    { "before": [ "+" ], "commands": [ "workbench.action.increaseViewSize" ] },
+    { "before": [ "gt" ], "commands": [ "workbench.action.nextEditor" ] },
+    { "before": [ "gr" ], "commands": [ "workbench.action.previousEditor" ] },
+    { "before": [ "space" ], "commands": [ "center-editor-window.center" ] },
+    { "before": [ "gT" ], "commands": [ "workbench.action.previousEditor" ] },
+    { "before": [ "s" ], "commands": [ "workbench.action.files.save" ] },
+    { "before": [ "<leader>", "g", "r" ], "commands": [ "extension.gitGrep" ] },
+    { "before": [ "<leader>", "v", "i" ], "commands": [ "workbench.action.openSettingsJson" ] },
+    { "before": [ "<leader>", "v", "s" ], "commands": [ ":tabe /Users/jb/Dropbox/Rails/rails-vscode.md" ] },
+    { "before": [ "<leader>", "s", "k" ], "commands": [ ":tabe db/schema.rb" ] },
+    { "before": [ "<leader>", "s", "c" ], "commands": [ ":tabe config/schedule.rb" ] },
+    { "before": [ "<leader>", "r", "t" ], "commands": [ ":tabe config/routes.rb" ] },
+    { "before": [ "<leader>", "g", "m" ], "commands": [ ":tabe Gemfile" ] },
+    { "before": [ "<leader>", "a", "b" ], "commands": [ ":tabe app/models/ability.rb" ] },
+    { "before": [ "<leader>", "l", "m" ], "commands": [ "extension.railsLatestMigration" ] },
+    { "before": [ "<leader>", "<leader>" ], "commands": [ "workbench.action.showCommands" ] },
+    { "before": [ "<leader>", "n" ], "commands": [ "renameFile" ] },
+    { "before": [ "F4" ], "commands": [ "workbench.action.closeActiveEditor" ] },
+    { "before": [ "tab" ], "commands": [ "workbench.action.focusBelowGroup" ] },
+    { "before": [ "Z", "Z" ], "commands": [ ":wq" ] }
+  ],
+  "workbench.activityBar.visible": true,
+  "editor.wordWrap": "on",
+  "editor.wordWrapColumn": 117,
+  "editor.lineNumbers": "relative",
+  "html.validate.scripts": false,
+  "ruby.specSaveFile": true,
+  "ruby.specCommand": "bundle exec bin/rspec",
+  "search.exclude": {
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/tmp": true,
+    "**/coverage": true,
+    "**/log": true,
+    "**/public/uploads": true
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/log": true
+  },
+  // Enable/disable navigation breadcrumbs.
+  "breadcrumbs.enabled": true,
+  // EDITOR
+  // Controls whether the editor should run in a mode where it is optimized for screen readers.
+  "editor.accessibilitySupport": "off"
+}
