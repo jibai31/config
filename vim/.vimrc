@@ -31,6 +31,7 @@ filetype plugin indent on     " required
 " ================
 syntax on
 set number
+set redrawtime=10000
 
 " From Ben Orenstein
 augroup myfiletypes
@@ -57,12 +58,10 @@ map <Leader>rv :RTview
 map <Leader>rc :RTcontroller 
 map <Leader>ra :%s/
 map <Leader>sk :tabe db/schema.rb<cr>
-map <Leader>fa :tabe spec/factories.rb<CR>
 map <Leader>rt :tabe config/routes.rb<CR>
 map <Leader>sc :tabe config/schedule.rb<cr>
 map <Leader>gm :tabe Gemfile<CR>
 map <Leader>en :tabe config/locales/en.yml<CR>
-map <Leader>fr :tabe config/locales/fr.yml<CR>
 map <Leader>ab :tabe app/models/ability.rb<CR>
 map <Leader>nt :NERDTree<CR>
 map <Leader>rr :!bin/rake routes \| grep<Space>
@@ -81,13 +80,15 @@ nnoremap <C-H> <C-W><C-H>
 " 10 <C-w> <   --> Extend the current vertical buffer by 10 chars to the right
 " 10 <C-w> -   --> Extend the current horizontal buffer by 10 chars to the top
 " 10 <C-w> +   --> Extend the current horizontal buffer by 10 chars to the bottom
-" <C-w> R   --> Swap top/bottom or left/right split
+" <C-w> R   --> Switch/Swap top/bottom or left/right split
 " <C-w> T   --> Break out current window into a new tabview
 " <C-w> o   --> Close every window in the current tabview but the current one
 map - <C-w>-
 map + <C-w>+
 map _ <C-w>_
 map = <C-w>=
+map zz :set foldmethod=indent<CR>:syntax on<CR>
+map <Space> z.
 
 " Easier on Mac
 map := :!
@@ -97,11 +98,7 @@ map <Leader>e :e <C-R>=expand("%:p:h") . '/'<CR>
 map <Leader>s :split <C-R>=expand("%:p:h") . '/'<CR>
 map <Leader>v :vnew <C-R>=expand("%:p:h") . '/'<CR>
 map <Leader>t :tabe <C-R>=expand("%:p:h") . '/'<CR>
-map <Leader>sj :split app/assets/javascripts/
-map <Leader>ss :split app/assets/stylesheets/
-map <Leader>ej :e app/assets/javascripts/
-map <Leader>es :e app/assets/stylesheets/
-map <Leader>tj :tabe app/assets/javascripts/
+map <Leader>tj :tabe app/assets/javascripts/neo/
 map <Leader>ts :tabe app/assets/stylesheets/
 
 " Vim Surround: https://github.com/tpope/vim-surround
@@ -188,7 +185,7 @@ map <C-s> <esc>:w<CR>
 imap <C-s> <esc>:w<CR>
 map <C-t> <esc>:tabnew<CR>
 map <F4> :q!<CR>
-map :wsudo<CR> :w !sudo tee %<CR>
+map :ws :w !sudo tee %<CR>
 map <Leader>nn :set nonumber<CR>
 map <Leader>ni :set number<CR>
 
