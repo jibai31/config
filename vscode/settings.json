@@ -53,7 +53,7 @@
     { "before": ["<leader>", "<leader>"], "commands": ["workbench.action.showCommands"] },
     { "before": ["<leader>", "n"], "commands": ["renameFile"] },
     { "before": ["F4"], "commands": ["workbench.action.closeActiveEditor"] },
-    { "before": ["tab"], "commands": ["workbench.action.focusBelowGroup"] },
+    { "before": ["shift+tab"], "commands": ["workbench.action.focusPreviousGroup"] },
     { "before": ["tab"], "commands": ["workbench.action.focusNextGroup"] },
     { "before": ["Z", "Z"], "commands": [":wq"] }
   ],
