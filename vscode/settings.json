@@ -14,8 +14,13 @@
   "editor.minimap.enabled": false,
   "editor.acceptSuggestionOnEnter": "off",
   "editor.accessibilitySupport": "off",
+  "trailing-spaces.trimOnSave": true,
+  "terminal.integrated.copyOnSelection": true,
 
   "files.insertFinalNewline": true,
+  "files.associations": {
+    "*.html.erb": "html"
+  },
 
   "workbench.editor.enablePreview": false,
   "workbench.settings.enableNaturalLanguageSearch": false,
@@ -24,6 +29,8 @@
   "telemetry.enableTelemetry": false,
   "emmet.showExpandedAbbreviation": "never",
   "vim.leader": ",",
+  "vim.gdefault": true,
+  "vim.startofline": false,
   "vim.insertModeKeyBindings": [{ "before": ["j", "j"], "after": ["<Esc>"] }],
   "vim.normalModeKeyBindingsNonRecursive": [
     { "before": ["-"], "commands": ["workbench.action.decreaseViewSize"] },
@@ -33,6 +40,7 @@
     { "before": ["space"], "commands": ["center-editor-window.center"] },
     { "before": ["gT"], "commands": ["workbench.action.previousEditor"] },
     { "before": ["s"], "commands": ["workbench.action.files.save"] },
+    { "before": ["backspace"], "commands": ["workbench.action.navigateBack"] },
     { "before": ["<leader>", "g", "r"], "commands": ["extension.gitGrep"] },
     { "before": ["<leader>", "v", "i"], "commands": ["workbench.action.openSettingsJson"] },
     { "before": ["<leader>", "v", "s"], "commands": [":tabe /Users/jb/Dropbox/Rails/rails-vscode.md"] },
@@ -46,6 +54,7 @@
     { "before": ["<leader>", "n"], "commands": ["renameFile"] },
     { "before": ["F4"], "commands": ["workbench.action.closeActiveEditor"] },
     { "before": ["tab"], "commands": ["workbench.action.focusBelowGroup"] },
+    { "before": ["tab"], "commands": ["workbench.action.focusNextGroup"] },
     { "before": ["Z", "Z"], "commands": [":wq"] }
   ],
   "workbench.activityBar.visible": true,
