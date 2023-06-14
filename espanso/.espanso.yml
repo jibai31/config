@@ -1,0 +1,166 @@
+# espanso match file
+
+# For a complete introduction, visit the official docs at: https://espanso.org/docs/
+
+# You can use this file to define the base matches (aka snippets)
+# that will be available in every application when using espanso.
+
+# Matches are substitution rules: when you type the "trigger" string
+# it gets replaced by the "replace" string.
+matches:
+  # Simple text replacement
+  - trigger: ":espanso"
+    replace: "Hi there!"
+
+  # NOTE: espanso uses YAML to define matches, so pay attention to the indentation!
+
+  # But matches can also be dynamic:
+
+  # Print the current date
+  - trigger: "=date"
+    replace: "{{mydate}}"
+    vars:
+      - name: mydate
+        type: date
+        params:
+          format: "%m/%d/%Y"
+
+  # Print the output of a shell command
+  - trigger: ":shell"
+    replace: "{{output}}"
+    vars:
+      - name: output
+        type: shell
+        params:
+          cmd: "echo 'Hello from your shell'"
+
+  # And much more! For more information, visit the docs: https://espanso.org/docs/
+
+  # =============================================================
+  # APP-SPECIFIC CONFIG
+  # =============================================================
+
+  # To create triggers for a specific app, for instance "Chrome", you need 2 new files:
+  #
+  # $CONFIG/config/chrome.yml
+  # -------------------------
+  # filter_exec: "chrome"
+  # extra_includes:
+  #   - "../match/_email.yml"  # NB: the _ is very important to avoid being used by all apps
+  #
+  # $CONFIG/match/_email.yml
+  # -------------------------
+  # matches:
+  #   - trigger: "..."
+  #     replace: "..."
+  #
+
+  # =======================================
+  # BROWSER
+  # =======================================
+
+  - trigger: "=g"
+    form: "http://github.com/guliveo/guliveo/commits/[[sha1]]"
+  - trigger: "=d"
+    form: "https://admin.neocamino.com/su/accounts/[[account_id]]/account_comments"
+
+  # =======================================
+  # SLACK
+  # =======================================
+
+  - trigger: "=jb"
+    replace: "https://meet.google.com/kws-iqvc-ppt?authuser=1"
+
+  # =======================================
+  # VSCODE
+  # =======================================
+
+  - trigger: "=bbb"
+    replace: "binding.pry"
+
+  # =======================================
+  # CONSOLE
+  # =======================================
+
+  - trigger: "=logof"
+    replace: "ActiveRecord::Base.logger.level = 1"
+  - trigger: "=logon"
+    replace: "ActiveRecord::Base.logger.level = 0"
+  - trigger: "=sale"
+    replace: "s = Crm::Sale.find "
+  - trigger: "=seo"
+    replace: "agent = Seo::WebAgent.new;"
+  - trigger: "=sub"
+    replace: "s = Subscription.find "
+  - trigger: "=sev"
+    replace: "e = SubscriptionEvent.find "
+  - trigger: "=sl"
+    replace: "api = Salesloft::Api.new"
+  - trigger: "=e"
+    replace: "e = Emailing::Campaign.find "
+  - trigger: "=f"
+    replace: "f = ContactFilter.find "
+  - trigger: "=v"
+    replace: "e = Calendar::Event.find "
+  - trigger: "=a"
+    replace: "a = account = Account.find "
+  - trigger: "=c"
+    replace: "c = Contact.find "
+  - trigger: "=gcc"
+    replace: "git commit -am \"#10"
+  - trigger: "=ip"
+    form: "u = User.where(current_sign_in_ip: '[[ip]]')"
+  - trigger: "=jn"
+    replace: "j = Emailing::Journey.find "
+  - trigger: "=job"
+    replace: "job = Delayed::Job.find "
+  - trigger: "=k"
+    replace: "k = SeoKeyword.find "
+  - trigger: "=lp"
+    replace: "lp = LandingPage.find "
+  - trigger: "=n"
+    replace: "n = Account.find(259)"
+  - trigger: "=p"
+    replace: "p = SeoPage.find "
+  - trigger: "=q"
+    replace: "q = quotation = Quotation.find_by_hid '"
+  - trigger: "=t"
+    replace: "t = Task.find_by_hid '"
+  - trigger: "=u"
+    replace: "u = User.find_by_hid '"
+  - trigger: "=w"
+    replace: "w = Crm::Workflow.find "
+  - trigger: "railsh"
+    replace: 'puts Readline::HISTORY.entries.split("exit").last[0..-2].join("\n")'
+  - trigger: "Xx"
+    replace: "exit\n"
+  - trigger: "RRR"
+    replace: "Rails.env"
+  - trigger: ".mm"
+    replace: ".public_methods.select{ |m| m =~ // }"
+  - trigger: "@caller"
+    replace: "caller.select{|line| line.include? 'guliveo'}"
+
+  - trigger: "=y"
+    replace: |
+      def tp(objects, *method_names)
+        terminal_width = `tput cols`.to_i
+        cols = method_names.count # Label column
+        col_width = (terminal_width / cols) - 1 # Column spacing
+
+        rows = [method_names]
+
+        objects.each do |o|
+          rows << method_names.map{|m| o.send(m).inspect}
+        end
+
+        col_widths = (0..(method_names.count - 1)).map do |i|
+          rows.map{|row| row[i].size}.max
+        end
+
+        rows.each do |row|
+          puts row.each_with_index.map{ |cell, i| cell.to_s.ljust(col_widths[i]) }.join ' | '
+        end
+
+        nil
+      end

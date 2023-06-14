@@ -1,66 +1,55 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  // Rubocop
+  "ruby.format": "rubocop",
+  "ruby.rubocop.onSave": true,
+  "[ruby]": {
+    "editor.defaultFormatter": "misogi.ruby-rubocop",
+    "editor.formatOnSave": true
+  },
+  "[gemfile]": {
+    "editor.defaultFormatter": "testdouble.vscode-standard-ruby"
+  },
   "[yaml]": {
     "editor.formatOnSave": false
   },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  },
   "editor.tabSize": 2,
   "editor.wrappingIndent": "none",
-  "editor.wordWrap": "on",
-  "editor.lineNumbers": "relative",
+  "editor.wordWrap": "off",
+  "editor.lineNumbers": "on",
   "editor.wordWrapColumn": 117,
   "editor.rulers": [117],
   "prettier.printWidth": 117,
+  "yaml.format.printWidth": 117,
   "editor.minimap.enabled": false,
   "editor.acceptSuggestionOnEnter": "off",
   "editor.accessibilitySupport": "off",
+  "editor.find.seedSearchStringFromSelection": "always",
   "trailing-spaces.trimOnSave": true,
   "terminal.integrated.copyOnSelection": true,
-
   "files.insertFinalNewline": true,
-  "files.associations": {
-    "*.html.erb": "html"
+  "workbench.editor.enablePreview": false,
+  "workbench.activityBar.visible": true,
+  "workbench.settings.enableNaturalLanguageSearch": false,
+  "workbench.colorCustomizations": {
+    "tab.activeBorderTop": "#b2c9e0",
+    "tab.inactiveBackground": "#444"
   },
 
-  "workbench.editor.enablePreview": false,
-  "workbench.settings.enableNaturalLanguageSearch": false,
-
-  "telemetry.enableCrashReporter": false,
-  "telemetry.enableTelemetry": false,
+  "telemetry.telemetryLevel": "off",
   "emmet.showExpandedAbbreviation": "never",
-  "vim.leader": ",",
-  "vim.gdefault": true,
-  "vim.startofline": false,
-  "vim.insertModeKeyBindings": [{ "before": ["j", "j"], "after": ["<Esc>"] }],
-  "vim.normalModeKeyBindingsNonRecursive": [
-    { "before": ["-"], "commands": ["workbench.action.decreaseViewSize"] },
-    { "before": ["+"], "commands": ["workbench.action.increaseViewSize"] },
-    { "before": ["gt"], "commands": ["workbench.action.nextEditor"] },
-    { "before": ["gr"], "commands": ["workbench.action.previousEditor"] },
-    { "before": ["space"], "commands": ["center-editor-window.center"] },
-    { "before": ["gT"], "commands": ["workbench.action.previousEditor"] },
-    { "before": ["s"], "commands": ["workbench.action.files.save"] },
-    { "before": ["backspace"], "commands": ["workbench.action.navigateBack"] },
-    { "before": ["<leader>", "g", "r"], "commands": ["extension.gitGrep"] },
-    { "before": ["<leader>", "v", "i"], "commands": ["workbench.action.openSettingsJson"] },
-    { "before": ["<leader>", "v", "s"], "commands": [":tabe /Users/jb/Dropbox/Rails/rails-vscode.md"] },
-    { "before": ["<leader>", "s", "k"], "commands": [":tabe db/schema.rb"] },
-    { "before": ["<leader>", "s", "c"], "commands": [":tabe config/schedule.rb"] },
-    { "before": ["<leader>", "r", "t"], "commands": [":tabe config/routes.rb"] },
-    { "before": ["<leader>", "g", "m"], "commands": [":tabe Gemfile"] },
-    { "before": ["<leader>", "a", "b"], "commands": [":tabe app/models/ability.rb"] },
-    { "before": ["<leader>", "l", "m"], "commands": ["extension.railsLatestMigration"] },
-    { "before": ["<leader>", "<leader>"], "commands": ["workbench.action.showCommands"] },
-    { "before": ["<leader>", "n"], "commands": ["renameFile"] },
-    { "before": ["F4"], "commands": ["workbench.action.closeActiveEditor"] },
-    { "before": ["shift+tab"], "commands": ["workbench.action.focusPreviousGroup"] },
-    { "before": ["tab"], "commands": ["workbench.action.focusNextGroup"] },
-    { "before": ["Z", "Z"], "commands": [":wq"] }
-  ],
-  "workbench.activityBar.visible": true,
+  "emmet.includeLanguages": { "html.erb": "erb" },
+  "extensions.experimental.affinity": {
+    "asvetliakov.vscode-neovim": 1
+  },
   "html.validate.scripts": false,
   "ruby.specSaveFile": true,
   "ruby.specCommand": "bundle exec bin/rspec",
+  "ruby.specClearTerminal": false,
   "search.exclude": {
     "**/.git": true,
     "**/node_modules": true,
@@ -81,5 +70,20 @@
   "plantuml.diagramsRoot": "doc/diagrams/src",
   "plantuml.exportOutDir": "doc/diagrams/out",
   // Enable/disable navigation breadcrumbs.
-  "breadcrumbs.enabled": true
+  "breadcrumbs.enabled": true,
+  "editor.snippetSuggestions": "none",
+  "editor.suggest.showSnippets": false,
+  "editor.suggest.snippetsPreventQuickSuggestions": false,
+  "vsicons.dontShowNewVersionMessage": true,
+  "explorer.confirmDragAndDrop": false,
+  "editor.cursorStyle": "line",
+  "editor.wordSeparators": "/\\()\"':,.;<>~!@#$%^&*|+=[]{}`?-",
+  "redhat.telemetry.enabled": false,
+  "editor.detectIndentation": false,
+  "security.workspace.trust.startupPrompt": "always",
+  "window.zoomLevel": -1,
+  "workbench.startupEditor": "none",
+  "security.workspace.trust.untrustedFiles": "open",
+  "terminal.integrated.enableMultiLinePasteWarning": false,
+  "explorer.confirmDelete": false
 }

@@ -1,0 +1,113 @@
+// Place your key bindings in this file to override the defaultsauto[]
+// Doc: https://code.visualstudio.com/docs/getstarted/keybindings
+
+// NeoVim Keybindings
+// To pass custom bindings to Neovim, for example C-h in normal mode, add to your keybindings.json:
+//
+// {
+//     "command": "vscode-neovim.send",
+//     "key": "ctrl+h",                                      // the key sequence to activate the binding
+//     "when": "editorTextFocus && neovim.mode != insert",   // don't activate during insert mode
+//     "args": "<C-h>"                                       // the input to send to Neovim
+// }
+// To disable an existing shortcut, for example C-a, add to your keybindings.json:
+//
+// {
+//     "command": "-vscode-neovim.send",
+//     "key": "ctrl+a"
+// }
+
+[
+  // Tab and file manipulations
+  {
+    "key": "f2",
+    "command": "workbench.action.terminal.toggleTerminal",
+    "when": "terminal.active"
+  },
+  {
+    "key": "f3",
+    "command": "workbench.action.closeOtherEditors"
+  },
+  {
+    "key": "f4",
+    "command": "workbench.action.closeActiveEditor"
+  },
+  {
+    "key": "tab",
+    "command": "workbench.action.focusNextGroup",
+    "when": "editorTextFocus && neovim.mode != insert"
+  },
+  {
+    "key": "shift+tab",
+    "command": "workbench.action.focusPreviousGroup",
+    "when": "editorTextFocus && neovim.mode != insert"
+  },
+  {
+    "key": "cmd+n",
+    "command": "extension.advancedNewFile"
+  },
+  {
+    "key": "cmd+d",
+    "command": "duplicate.execute"
+  },
+  {
+    "key": "cmd-j",
+    "command": "workbench.action.togglePanel"
+  },
+  // Text editing
+  {
+    "key": "cmd+/",
+    "command": "vscode-neovim.send",
+    "when": "editorTextFocus && neovim.init && neovim.mode == visual",
+    "args": "<C-/>"
+  },
+  // Defined tasks to run specs
+  // Replaced now by Rails Spec
+  // Cmd-T, Cmd-l, Cmd-y
+  {
+    "key": "ctrl+k ctrl+a",
+    "command": "workbench.action.tasks.runTask",
+    "args": "Run test suite"
+  },
+  {
+    "key": "ctrl+k ctrl+t",
+    "command": "workbench.action.tasks.runTask",
+    "args": "Run test file",
+    "when": "editorTextFocus"
+  },
+  {
+    "key": "ctrl+k ctrl+l",
+    "command": "workbench.action.tasks.runTask",
+    "args": "Run test case",
+    "when": "editorTextFocus"
+  },
+  // Rspec tasks
+  {
+    "key": "cmd+r",
+    "command": "-extension.runAllSpecFiles"
+  },
+  {
+    "key": "cmd+y",
+    "command": "extension.runLastSpec"
+  },
+  {
+    "key": "ctrl+cmd+y",
+    "command": "-extension.runLastSpec"
+  },
+  {
+    "key": "cmd+l",
+    "command": "extension.runSpecLine"
+  },
+  {
+    "key": "ctrl+cmd+l",
+    "command": "-extension.runSpecLine"
+  },
+  {
+    "key": "shift+cmd+t",
+    "command": "extension.runFileSpecs"
+  },
+  {
+    "key": "ctrl+cmd+t",
+    "command": "-extension.runFileSpecs"
+  }
+]

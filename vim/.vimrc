@@ -4,7 +4,7 @@ filetype off                  " required
 filetype plugin indent on     " required
 
 " ========================================================================
-" FIRST SETUP
+" VIM FIRST SETUP
 " ========================================================================
 " Setup external dependencies and create temp folder:
 "
@@ -26,6 +26,58 @@ filetype plugin indent on     " required
 " stty start undef
 " ========================================================================
 
+" ========================================================================
+" NEOVIM SETUP
+" ========================================================================
+"Use 24-bit (true-color) mode in Vim/Neovim when outside tmux.
+"If you're using tmux version 2.2 or later,
+"you can remove the outermost $TMUX check and use tmux's 24-bit color support
+"(see < http://sunaku.github.io/tmux-24bit-color.html#usage > for more information.)
+if (empty($TMUX))
+  if (has("nvim"))
+    "For Neovim 0.1.3 and 0.1.4
+    "https://github.com/neovim/neovim/pull/2198
+    let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+  endif
+  "For Neovim > 0.1.5 and Vim > patch 7.4.1799
+  "  https://github.com/vim/vim/commit/61be73bb0f965a895bfb064ea3e55476ac175162
+  "Based on Vim patch 7.4.1770 (`guicolors` option)
+  "  https://github.com/vim/vim/commit/8a633e3427b47286869aa4b96f2bfc1fe65b25cd
+  "  https://github.com/neovim/neovim/wiki/Following-HEAD#20160511
+  if (has("termguicolors"))
+    set termguicolors
+  endif
+endif
+
+
+" ========================================================================
+" NEOVIM PLUGINS
+" ========================================================================
+"
+" Install vim-plug
+"
+"   $ sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
+"      https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+"
+" Install all plugins below
+"
+"   :PlugInstall
+"
+" Also need following tools
+"
+"   brew install ripgrep
+"
+" ========================================================================
+call plug#begin('~/.config/nvim/plugged')
+let g:plug_url_format = 'git@github.com:%s.git'
+Plug 'morhetz/gruvbox'
+Plug 'tpope/vim-vividchalk'
+Plug 'tpope/vim-sensible'
+Plug 'numToStr/Comment.nvim'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+call plug#end()
+
+
 " ================
 " Ruby stuff
 " ================
@@ -43,26 +95,18 @@ augroup END
 
 " Handy shortcuts
 let mapleader = ","
-map <Leader>vi :tabe ~/.vimrc<CR>
 nmap <Leader>bi :source ~/.vimrc<cr>
-map <Leader>ee i# encoding: utf-8<ESC>o<BS><BS>
 " Navigation
-map <Leader>sm :RSmodel 
-map <Leader>sv :RSview 
-map <Leader>sc :RScontroller 
-map <Leader>vm :RVmodel 
-map <Leader>vv :RVview 
-map <Leader>vc :RVcontroller 
-map <Leader>rm :RTmodel 
-map <Leader>rv :RTview 
-map <Leader>rc :RTcontroller 
+map <Leader>sm :RSmodel
+map <Leader>sv :RSview
+map <Leader>sc :RScontroller
+map <Leader>vm :RVmodel
+map <Leader>vv :RVview
+map <Leader>vc :RVcontroller
+map <Leader>rm :RTmodel
+map <Leader>rv :RTview
+map <Leader>rc :RTcontroller
 map <Leader>ra :%s/
-map <Leader>sk :tabe db/schema.rb<cr>
-map <Leader>rt :tabe config/routes.rb<CR>
-map <Leader>sc :tabe config/schedule.rb<cr>
-map <Leader>gm :tabe Gemfile<CR>
-map <Leader>en :tabe config/locales/en.yml<CR>
-map <Leader>ab :tabe app/models/ability.rb<CR>
 map <Leader>nt :NERDTree<CR>
 map <Leader>rr :!bin/rake routes \| grep<Space>
 map <Leader>lm :Smigration<CR>
@@ -98,8 +142,6 @@ map <Leader>e :e <C-R>=expand("%:p:h") . '/'<CR>
 map <Leader>s :split <C-R>=expand("%:p:h") . '/'<CR>
 map <Leader>v :vnew <C-R>=expand("%:p:h") . '/'<CR>
 map <Leader>t :tabe <C-R>=expand("%:p:h") . '/'<CR>
-map <Leader>tj :tabe app/assets/javascripts/neo/
-map <Leader>ts :tabe app/assets/stylesheets/
 
 " Vim Surround: https://github.com/tpope/vim-surround
 " cs"'     Replaces surrounding double quotes with single quotes
@@ -133,7 +175,8 @@ map <Leader>bb :!bundle install<CR>
 " Git
 map <Leader>gd :!git diff<CR>
 map <Leader>gs :!git status<CR>
-map <Leader>gr :!git grep<Space>
+"map <Leader>gr :!git grep<Space>
+map <Leader>gr :!Rg<Space>
 nnoremap K :Ggrep <C-R><C-W><CR>:cw<CR><CR>
 " CTags
 " F9: open preview
@@ -161,7 +204,8 @@ map <Leader>gg <C-T>
 map <Leader>ct :!ctags -R<CR>
 " Search and replace
 map <Leader>rw :%s/\s\+$//<cr>:w<cr>
-map <Leader>vg :vsp<cr>:grep 
+map <Leader>vg :vsp<cr>:grep
+nmap ù *
 " Maps auto-complete to tab
 imap <Tab> <C-N>
 imap <C-L> <Space>=><Space>
@@ -175,8 +219,6 @@ map <Leader>< i<% %><esc>hhi
 " Move up and down within a long wrapped line
 nmap k gk
 nmap j gj
-" Dropbox
-map <Leader>dn :tabe ~/Dropbox/Rails/rails-freelance-neocamino.txt<cr>
 " Other
 map <Leader>co ggVG"*y
 map <Leader>p :set paste<CR>o<esc>"*]p:set nopaste<cr>
@@ -195,6 +237,7 @@ map <Leader>ni :set number<CR>
 " colorscheme distinguished
 " colorscheme candy
 colorscheme vividchalk
+" colorscheme gruvbox
 " colorscheme railscasts
 " colorscheme solarized
 " highlight NonText guibg=#060606
@@ -237,8 +280,51 @@ highlight StatusLine ctermfg=blue ctermbg=yellow
 highlight def link rubyFunction Function
 
 " When loading text files, wrap them and don't split up words.
-au BufNewFile,BufRead *.txt setlocal wrap 
+au BufNewFile,BufRead *.txt setlocal wrap
 au BufNewFile,BufRead *.txt setlocal lbr
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" OPEN FILES
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+map <Leader>vi :tabe ~/.vimrc<CR>
+map <Leader>ee :tabe ~/.espanso.yml<CR>
+map <Leader>zz :tabe ~/.zshrc<CR>
+
+map <Leader>ab :tabe app/models/ability.rb<CR>
+map <Leader>ev :tabe .env<CR>
+map <Leader>gm :tabe Gemfile<CR>
+map <Leader>rt :tabe config/routes.rb<CR>
+map <Leader>sc :tabe config/schedule.rb<cr>
+map <Leader>sk :tabe db/schema.rb<cr>
+
+map <Leader>dn :tabe ~/Dropbox/Rails/rails-freelance-neocamino.txt<cr>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" NEOVIM IN VSCODE
+" https://github.com/vscode-neovim/vscode-neovim#invoking-vscode-actions-from-neovim
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Open definition aside (default binding)
+nnoremap <C-w>gd <Cmd>call VSCodeNotify('editor.action.revealDefinitionAside')<CR>
+
+" Find in files for word under curso
+nnoremap ? <Cmd>call VSCodeNotify('workbench.action.findInFiles', { 'query': expand('<cword>')})<CR>
+
+map <Leader>lm <Cmd>call VSCodeNotify('extension.railsLatestMigration')<CR>
+map <Leader>gt <Cmd>call VSCodeNotify('workbench.action.nextEditorInGroup')<CR>
+map <Leader>gT <Cmd>call VSCodeNotify('workbench.action.previousEditorInGroup')<CR>
+map <Leader>gr <Cmd>call VSCodeNotify('extension.ripgrep')<CR>
+map gh <Cmd>call VSCodeNotify('gitlens.openCommitOnRemote')<CR>
+
+" Comment visual blocks in VSCode
+if exists('g:vscode')
+  "map gc <Cmd>call VSCodeNotify('editor.action.commentLine')<CR>
+  xnoremap <expr> gc <SID>vscodeCommentary()
+  nnoremap <expr> gc <SID>vscodeCommentary() . '_'
+  xmap gc <Plug>VSCodeCommentarygv
+  nmap gc <Plug>VSCodeCommentaryLinegv
+endif
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
