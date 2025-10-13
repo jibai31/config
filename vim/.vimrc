@@ -69,14 +69,16 @@ endif
 "
 " ========================================================================
 call plug#begin('~/.config/nvim/plugged')
-let g:plug_url_format = 'git@github.com:%s.git'
-Plug 'morhetz/gruvbox'
-Plug 'tpope/vim-vividchalk'
-Plug 'tpope/vim-sensible'
-Plug 'numToStr/Comment.nvim'
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+  let g:plug_url_format = 'git@github.com:%s.git'
+  " Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+  Plug 'tpope/vim-commentary'
+  Plug 'tpope/vim-eunuch'
+  Plug 'tpope/vim-sensible'
+  Plug 'tpope/vim-surround'
+  " == Color schemes
+  " Plug 'morhetz/gruvbox'
+  " Plug 'tpope/vim-vividchalk'
 call plug#end()
-
 
 " ================
 " Ruby stuff
@@ -84,6 +86,8 @@ call plug#end()
 syntax on
 set number
 set redrawtime=10000
+set timeoutlen=1000
+set ttimeoutlen=5
 
 " From Ben Orenstein
 augroup myfiletypes
@@ -131,7 +135,7 @@ map - <C-w>-
 map + <C-w>+
 map _ <C-w>_
 map = <C-w>=
-map zz :set foldmethod=indent<CR>:syntax on<CR>
+map z w
 map <Space> z.
 
 " Easier on Mac
@@ -207,18 +211,19 @@ map <Leader>rw :%s/\s\+$//<cr>:w<cr>
 map <Leader>vg :vsp<cr>:grep
 nmap ù *
 " Maps auto-complete to tab
-imap <Tab> <C-N>
+"imap <Tab> <C-N> "This shows auto suggest instead of adding spaces for
+"indentation
 imap <C-L> <Space>=><Space>
 " Indent current file
 map <Leader>i mmgg=G`m<CR>
-map <Leader>j :%s/\t/  /<CR>
+" map <Leader>j :%s/\t/  /<CR>
 " Auto-close HTML tags when typing <//
 iabbrev <// </<C-X><C-O>
 " Auto-open ERB tags
 map <Leader>< i<% %><esc>hhi
 " Move up and down within a long wrapped line
-nmap k gk
-nmap j gj
+" nmap k gk
+" nmap j gj
 " Other
 map <Leader>co ggVG"*y
 map <Leader>p :set paste<CR>o<esc>"*]p:set nopaste<cr>
@@ -234,9 +239,10 @@ map <Leader>ni :set number<CR>
 " Color scheme
 " syntax enable
 " set background=dark
+" colorscheme vividchalk
+" -- other colorschemes:
 " colorscheme distinguished
 " colorscheme candy
-colorscheme vividchalk
 " colorscheme gruvbox
 " colorscheme railscasts
 " colorscheme solarized
@@ -257,7 +263,6 @@ set backupdir=~/.tmp " Don't clutter my dirs up with swp and tmp files
 set directory=~/.tmp
 set gdefault " Assume the /g flag on :s substitutions to replace all matches in a line
 set formatoptions-=or " Don't add the comment prefix when I hit enter or o/O on a comment line.
-set pastetoggle=<F2> " Toggle paste/nopaste to avoid auto-indent when pasting code
 
 " %% is the current path
 cabbr <expr> %% expand('%:p:h')
@@ -296,7 +301,7 @@ map <Leader>ev :tabe .env<CR>
 map <Leader>gm :tabe Gemfile<CR>
 map <Leader>rt :tabe config/routes.rb<CR>
 map <Leader>sc :tabe config/schedule.rb<cr>
-map <Leader>sk :tabe db/schema.rb<cr>
+map <Leader>sk :tabe db/structure.sql<cr>
 
 map <Leader>dn :tabe ~/Dropbox/Rails/rails-freelance-neocamino.txt<cr>
 
@@ -308,23 +313,25 @@ map <Leader>dn :tabe ~/Dropbox/Rails/rails-freelance-neocamino.txt<cr>
 " Open definition aside (default binding)
 nnoremap <C-w>gd <Cmd>call VSCodeNotify('editor.action.revealDefinitionAside')<CR>
 
-" Find in files for word under curso
+" Find in files for word under cursor
 nnoremap ? <Cmd>call VSCodeNotify('workbench.action.findInFiles', { 'query': expand('<cword>')})<CR>
+nnoremap vv <Cmd>call VSCodeNotify('workbench.action.findInFiles', { 'query': expand('<cword>')})<CR>
 
 map <Leader>lm <Cmd>call VSCodeNotify('extension.railsLatestMigration')<CR>
 map <Leader>gt <Cmd>call VSCodeNotify('workbench.action.nextEditorInGroup')<CR>
 map <Leader>gT <Cmd>call VSCodeNotify('workbench.action.previousEditorInGroup')<CR>
 map <Leader>gr <Cmd>call VSCodeNotify('extension.ripgrep')<CR>
 map gh <Cmd>call VSCodeNotify('gitlens.openCommitOnRemote')<CR>
+map gi <Cmd>call VSCodeNotify('gitlens.openFileOnRemote')<CR>
 
 " Comment visual blocks in VSCode
-if exists('g:vscode')
-  "map gc <Cmd>call VSCodeNotify('editor.action.commentLine')<CR>
-  xnoremap <expr> gc <SID>vscodeCommentary()
-  nnoremap <expr> gc <SID>vscodeCommentary() . '_'
-  xmap gc <Plug>VSCodeCommentarygv
-  nmap gc <Plug>VSCodeCommentaryLinegv
-endif
+"if exists('g:vscode')
+"  "map gc <Cmd>call VSCodeNotify('editor.action.commentLine')<CR>
+"  xnoremap <expr> gc <SID>vscodeCommentary()
+"  nnoremap <expr> gc <SID>vscodeCommentary() . '_'
+"  xmap gc <Plug>VSCodeCommentarygv
+"  nmap gc <Plug>VSCodeCommentaryLinegv
+"endif
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

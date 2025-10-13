@@ -2,6 +2,9 @@
 cp /Users/jb/Library/Application\ Support/Code/User/settings.json vscode/
 cp /Users/jb/Library/Application\ Support/Code/User/keybindings.json vscode/
 
+# NeoVim
+cp -R ~/.config/nvim nvim/
+
 # Vim
 cp ~/.vimrc vim/
 

@@ -1,23 +1,19 @@
 {
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  // Rubocop
-  "ruby.format": "rubocop",
-  "ruby.rubocop.onSave": true,
-  "[ruby]": {
-    "editor.defaultFormatter": "misogi.ruby-rubocop",
-    "editor.formatOnSave": true
-  },
-  "[gemfile]": {
-    "editor.defaultFormatter": "testdouble.vscode-standard-ruby"
-  },
   "[yaml]": {
     "editor.formatOnSave": false
   },
   "[html]": {
     "editor.defaultFormatter": "vscode.html-language-features"
   },
+  "[ruby]": {
+    "editor.defaultFormatter": "Shopify.ruby-lsp"
+  },
+  "ruby.rubocop.onSave": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.semanticHighlighting.enabled": true,
   "editor.wrappingIndent": "none",
   "editor.wordWrap": "off",
   "editor.lineNumbers": "on",
@@ -33,7 +29,6 @@
   "terminal.integrated.copyOnSelection": true,
   "files.insertFinalNewline": true,
   "workbench.editor.enablePreview": false,
-  "workbench.activityBar.visible": true,
   "workbench.settings.enableNaturalLanguageSearch": false,
   "workbench.colorCustomizations": {
     "tab.activeBorderTop": "#b2c9e0",
@@ -52,12 +47,13 @@
   "ruby.specClearTerminal": false,
   "search.exclude": {
     "**/.git": true,
-    "**/node_modules": true,
     "**/bower_components": true,
-    "**/tmp": true,
     "**/coverage": true,
+    "**/db/migrate": true,
     "**/log": true,
-    "**/public/uploads": true
+    "**/node_modules": true,
+    "**/public/uploads": true,
+    "**/tmp": true
   },
   "files.exclude": {
     "**/.git": true,
@@ -85,5 +81,13 @@
   "workbench.startupEditor": "none",
   "security.workspace.trust.untrustedFiles": "open",
   "terminal.integrated.enableMultiLinePasteWarning": false,
-  "explorer.confirmDelete": false
+  "explorer.confirmDelete": false,
+  "editor.fontFamily": "Menlo, 'IntelOne Mono', Monaco, 'Courier New', monospace",
+  "editor.fontSize": 13,
+  "editor.dragAndDrop": false,
+  "notebook.dragAndDropEnabled": false,
+  "editor.copyWithSyntaxHighlighting": false,
+  "editor.emptySelectionClipboard": false,
+  "copyOnSelect.trimEnd": false,
+  "vscode-neovim.neovimExecutablePaths.linux": "/usr/local/bin/nvim"
 }
