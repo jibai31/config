@@ -116,6 +116,8 @@ matches:
     replace: "39483"
   - trigger: "=cc"
     replace: "c = contact = Contact.find "
+  - trigger: "=dev"
+    replace: "a = account = Account.find 3146; u = a.user; s = a.subscription;"
   - trigger: "=ii"
     replace: "i = invoice = Invoice.find "
   - trigger: "=il"

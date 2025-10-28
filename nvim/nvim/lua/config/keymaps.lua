@@ -12,6 +12,12 @@ map("n", ":=", ":!", { desc = "Cmdline - Easier on Mac" })
 map("n", ",so", ":!so %<CR>", { desc = "Source current file (reload vim config)" })
 
 -- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+-- " IA
+-- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+map("n", "<Space>ww", ":Codeium Chat", { desc = "Launch Windsurf Chat" })
+
+-- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 -- " Within a file
 -- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -28,6 +34,22 @@ map("n", "=", "<C-w>=", { desc = "Equally high and wide" })
 
 map("n", "vv", "viw<Space>sw", { remap = true, desc = "Search selected text" })
 map("n", "K", ":lua vim.diagnostic.open_float()<CR>", { desc = "Show diagnostics for the current cursor position" })
+
+map("n", "<Space>fm", function()
+  require("telescope.builtin").find_files({ search_dirs = { "app/models" }, prompt_title = "Find Models" })
+end, { desc = "Find Model" })
+map("n", "<Space>fs", function()
+  require("telescope.builtin").find_files({ search_dirs = { "spec/" }, prompt_title = "Find Models" })
+end, { desc = "Find Model" })
+
+-- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+-- " Quickfix list (eg, search results)
+-- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+-- Ctrl-q to send search results to quickfix
+-- Alt-q to send SELECTED search results to quickfix (Tab to select)
+map("n", "<Space>j", ":cnext<CR>", { desc = "Next quickfix item" })
+map("n", "<Space>k", ":cprev<CR>", { desc = "Previous quickfix item" })
 
 -- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 -- " Old mappings when comma was the leader key
