@@ -38,9 +38,25 @@ map("n", "K", ":lua vim.diagnostic.open_float()<CR>", { desc = "Show diagnostics
 map("n", "<Space>fm", function()
   require("telescope.builtin").find_files({ search_dirs = { "app/models" }, prompt_title = "Find Models" })
 end, { desc = "Find Model" })
+
 map("n", "<Space>fs", function()
   require("telescope.builtin").find_files({ search_dirs = { "spec/" }, prompt_title = "Find Models" })
-end, { desc = "Find Model" })
+end, { desc = "Find Spec" })
+
+map("n", "<Space>fr", function()
+  local routes = vim.fn.systemlist("rails routes")
+
+  require("telescope.pickers")
+    .new({}, {
+      prompt_title = "Rails Routes",
+      finder = require("telescope.finders").new_table({
+        results = routes,
+      }),
+      sorter = require("telescope.sorters").get_substr_matcher(),
+      previewer = false,
+    })
+    :find()
+end, { desc = "Search Rails Routes" })
 
 -- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 -- " Quickfix list (eg, search results)
@@ -162,6 +178,33 @@ map("n", ",tr", function()
   vim.cmd("terminal " .. cmd)
   vim.cmd("startinsert")
 end, { desc = "Rerun last test" })
+
+-- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+-- " Git
+-- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+-- map("n", "<Space>gc", function()
+--   local commit = vim.fn.systemlist(
+--     "git log -1 --pretty=format:%H " .. vim.fn.expand("%") .. " -L " .. vim.fn.line(".") .. ",+1:" .. vim.fn.expand("%")
+--   )[1]
+--   if commit then
+--     vim.fn.system("gh browse " .. commit)
+--   end
+-- end, { desc = "Open commit for current line in GitHub" })
+
+map("n", "<Space>gc", function()
+  -- require("gitsigns").blame_line({ full = true })
+  -- Or use this for direct GitHub opening:
+  local file = vim.fn.expand("%")
+  local line = vim.fn.line(".")
+  local commit = vim.fn.systemlist("git log -n 1 --pretty=format:%H -L " .. line .. "," .. line .. ":" .. file)[1]
+
+  if commit and commit ~= "" then
+    vim.cmd("!gh browse " .. commit)
+  else
+    vim.notify("No commit found for current line", vim.log.levels.WARN)
+  end
+end, { desc = "Open commit in GitHub" })
 
 -- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 -- " Terminal

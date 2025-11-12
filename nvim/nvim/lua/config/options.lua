@@ -5,6 +5,8 @@
 vim.opt.winbar = "%m %f"
 vim.opt.textwidth = 117
 vim.opt.colorcolumn = "+1"
+vim.opt.sidescroll = 0
+vim.opt.sidescrolloff = 0
 
 vim.g.lazyvim_check_order = false
 vim.g.lazyvim_ruby_lsp = "ruby_lsp"
@@ -13,3 +15,7 @@ vim.g.lazyvim_ruby_formatter = "rubocop"
 vim.g.rails_no_migrations = 1
 vim.g.rails_no_migration_prompt = 1
 vim.g.rails_migration_check = 0
+
+-- Show trailing spaces
+vim.opt.list = true
+vim.opt.listchars = { trail = " " }

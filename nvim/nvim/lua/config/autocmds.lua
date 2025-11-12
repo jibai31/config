@@ -34,3 +34,20 @@ autocmd("FileType", {
     vim.b.autoformat = false
   end,
 })
+
+-- Highlight trailing spaces in red (only in normal mode)
+autocmd({ "BufWinEnter", "InsertLeave" }, {
+  pattern = "*",
+  callback = function()
+    vim.cmd("match TrailingWhitespace /\\s\\+$/")
+  end,
+})
+
+autocmd("InsertEnter", {
+  pattern = "*",
+  callback = function()
+    vim.cmd("match none")
+  end,
+})
+
+vim.cmd("highlight TrailingWhitespace ctermbg=red guibg=red")
