@@ -18,15 +18,13 @@ map("n", ",so", ":!so %<CR>", { desc = "Source current file (reload vim config)"
 map("n", "<Space>ww", ":Codeium Chat", { desc = "Launch Windsurf Chat" })
 
 -- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
--- " Within a file
+-- " File
 -- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-map("n", "ù", "*")
-map("n", "<Enter>", "z.", { desc = "Center screen on cursor" })
-map("n", "-", "<C-w>-", { desc = "Decrease height" })
-map("n", "+", "<C-w>+", { desc = "Increase height" })
-map("n", "_", "<C-w>_", { desc = "Max out height" })
-map("n", "=", "<C-w>=", { desc = "Equally high and wide" })
+map("n", "s", ":w<CR>", { desc = "Save file" })
+map("n", "<Space>rf", function()
+  require("snacks").rename.rename_file()
+end, { desc = "Rename current file" })
 
 -- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 -- " Search & code navigation
@@ -38,6 +36,10 @@ map("n", "K", ":lua vim.diagnostic.open_float()<CR>", { desc = "Show diagnostics
 map("n", "<Space>fm", function()
   require("telescope.builtin").find_files({ search_dirs = { "app/models" }, prompt_title = "Find Models" })
 end, { desc = "Find Model" })
+
+map("n", "<Space>fd", function()
+  require("telescope.builtin").find_files({ search_dirs = { vim.fn.expand("%:p:h") }, prompt_title = "Find Files" })
+end, { desc = "Find Files (Current File Dir)" })
 
 map("n", "<Space>fs", function()
   require("telescope.builtin").find_files({ search_dirs = { "spec/" }, prompt_title = "Find Models" })
@@ -66,12 +68,6 @@ end, { desc = "Search Rails Routes" })
 -- Alt-q to send SELECTED search results to quickfix (Tab to select)
 map("n", "<Space>j", ":cnext<CR>", { desc = "Next quickfix item" })
 map("n", "<Space>k", ":cprev<CR>", { desc = "Previous quickfix item" })
-
--- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
--- " Old mappings when comma was the leader key
--- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-map("n", ",gr", "<leader>sg", { desc = "Search within all files" })
 
 -- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 -- " Play with buffers, windows and tables
@@ -108,26 +104,27 @@ local function close_hidden_buffers()
   end
 end
 
--- DEBUG HELP
--- List all opened windows:
--- :lua for _, win in ipairs(vim.api.nvim_list_wins()) do local buf = vim.api.nvim_win_get_buf(win); print(string.format("Win %d -> Buf %d: %s (config: %s)", win, buf, vim.api.nvim_buf_get_name(buf), vim.inspect(vim.api.nvim_win_get_config(win)))) end
-
--- " For WINDOWS
+map("n", "ù", "*")
+map("n", "zz", "za", { desc = "Toggle fold" })
+map("n", "<Enter>", "z.", { desc = "Center screen on cursor" })
+map("n", "-", "<C-w>-", { desc = "Decrease height" })
+map("n", "+", "<C-w>+", { desc = "Increase height" })
+map("n", "_", "<C-w>_", { desc = "Max out height" })
+map("n", "=", "<C-w>=", { desc = "Equally high and wide" })
 map("n", "|", ":vsp<CR>", { desc = "Split vertically" })
 map("n", "<Tab>", "<C-w>w", { desc = "Switch to next window" })
 map("n", "<S-Tab>", "<C-w>k", { desc = "Switch to prev window" })
--- map("n", "<F3>", ":bd<CR>", { desc = "Close buffer" })
--- map("n", "<F4>", ":q!<CR>", { desc = "Close window" })
--- map("n", "<F3>", ":%bd<BAR>e#<CR>", { desc = "Close all other buffers" })
 map("n", "<F3>", close_hidden_buffers, { desc = "Close all buffers not visible in windows", silent = true })
+map("n", "<Space><F3>", "<Space>bo", { desc = "Delete other buffers", silent = true })
 map("n", "<F4>", ":q!<CR>", { desc = "Close window" })
 map("n", "<Space><F4>", ":bp<BAR>bd#<CR>", { desc = "Close buffer" })
-
+map("n", "<F5>", ":%bd|e#|bd#<CR>", { desc = "Delete all buffers except current" })
 map("n", "<BS>", "<C-o>", { desc = "Back to previous location" })
-
-map("n", "s", ":w<CR>", { desc = "Save file" })
-
 map("n", "<Cmd-h>", "H", { desc = "Display left buffer" })
+
+-- DEBUG HELP
+-- List all opened windows:
+-- :lua for _, win in ipairs(vim.api.nvim_list_wins()) do local buf = vim.api.nvim_win_get_buf(win); print(string.format("Win %d -> Buf %d: %s (config: %s)", win, buf, vim.api.nvim_buf_get_name(buf), vim.inspect(vim.api.nvim_win_get_config(win)))) end
 
 -- """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 -- " Tests
@@ -222,6 +219,9 @@ map("n", ",vo", ":tabe ~/.config/nvim/lua/config/options.lua<CR>")
 map("n", ",va", ":tabe ~/.config/nvim/lua/config/autocmds.lua<CR>")
 map("n", ",vr", ":tabe ~/.config/nvim/lua/plugins/rails.lua<CR>")
 map("n", ",vn", ":tabe ~/.config/nvim/lua/plugins/neotest.lua<CR>")
+map("n", ",vs", function()
+  require("telescope.builtin").find_files({ search_dirs = { "~/.claude/" }, prompt_title = "Find Claude" })
+end)
 map("n", ",ee", ":tabe ~/.espanso.yml<CR>")
 map("n", ",zz", ":tabe ~/.zshrc<CR>")
 map("n", ",ab", ":tabe app/models/ability.rb<CR>")
