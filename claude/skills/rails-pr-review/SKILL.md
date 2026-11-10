@@ -76,13 +76,13 @@ only the matching areas:
 
 When unsure whether an area applies, load it: a skipped area is a blind spot, an extra one only costs reading time.
 
-Then load the project rules, if the repository has a `docs/review/` folder:
+Then load the project rules, if the repository has a review guide (`docs/review.md`, or `REVIEW.md` at the root).
+The guide holds no conventions itself: it maps each area to the project docs that define the rules, sets severity
+defaults for them, and lists what not to flag. Read the guide, then the doc sections it names for each area you
+loaded. Without a guide, fall back to the convention docs found in step 2.
 
-- `docs/review/general.md`, always.
-- `docs/review/<area>.md` for each area loaded above, when the file exists.
-
-Project rules override the generic checklist when they disagree. They often point to other docs (for example
-`docs/architecture/CONVENTIONS.md`): read the referenced section when the diff touches that area.
+Project rules override the generic checklist when they disagree, and the guide's severities and "don't flag" list
+override your own judgment.
 
 In the summary, list the areas you loaded, so a human can see what the review covered.
 

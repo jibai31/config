@@ -12,5 +12,5 @@ cp ~/.vimrc vim/
 cp ~/.espanso.yml espanso/
 
 # Claude
-cp -R ~/.claude/skills claude/skills/
+cp -R ~/.claude/skills claude/
 rm -rf claude/skills/synced

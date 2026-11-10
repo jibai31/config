@@ -1,7 +1,7 @@
 # Review checklist: Correctness
 
 Part of the rails-pr-review checklist. It lists *where bugs hide*, not rules to enforce everywhere. Only comment
-when you can point at a line and name the consequence. Project rules (`docs/review/` in the repo) override this file.
+when you can point at a line and name the consequence. Project rules (the repo review guide) override this file.
 
 ## Correctness
 
