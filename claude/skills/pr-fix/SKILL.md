@@ -61,7 +61,7 @@ part of the code.
 
 | Case | Action |
 |---|---|
-| `blocking` or `should-fix`, valid | Implement it. |
+| `blocking` or `should-fix`, valid | Implement it, within the PR's diff (see step 6). Both hold the loop until fixed or answered. |
 | `nit`, valid and cheap | Implement it. Otherwise `Won't fix:` with a short reason. |
 | Reviewer is wrong (fix exists elsewhere, false premise, conflicts with project rules) | No code change. `Won't fix:` with concrete evidence (file:line, schema, ADR, spec). |
 | Human comment | At least `should-fix`. Ambiguous, or a design question you can't settle from the code and docs → `Question:`, no code change. |
@@ -90,6 +90,11 @@ decision, reply `Question:` with the trade-off instead of improvising.
 ### 6. Implement
 
 - Smallest change that fully addresses the comment. No drive-by refactors: they widen the next review diff.
+- **Fix convention breaches only within the PR's diff.** When a comment flags a project-rule or convention breach
+  (custom CSS instead of Bootstrap classes, raw Bootstrap markup instead of a `UI::*` component, `current_user`, …),
+  fix the occurrences the PR adds or changes, nothing else. The same breach elsewhere in the app stays as is: don't
+  refactor or migrate other files or callers. Touch a file outside the diff only when the in-diff fix needs it (e.g.
+  add an option to a component so the PR's view can use it), keeping existing callers unchanged.
 - Apply a `suggestion` block as-is unless it is wrong or doesn't fit the surrounding code.
 - When the comment lists several locations, fix all of them.
 - Add or update tests when the comment is about missing tests, and whenever the fix changes behavior.

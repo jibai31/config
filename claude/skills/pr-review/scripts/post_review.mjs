@@ -4,7 +4,7 @@
 //
 // Usage: node post_review.mjs FINDINGS_JSON [--dry-run]
 //
-// Exit codes: 0 no open blocking issues · 2 blocking issues open · 3 handoff to a human · 1 error
+// Exit codes: 0 nothing left for the fixer · 2 blocking or unanswered should-fix open · 3 handoff to a human · 1 error
 
 import { existsSync, readFileSync } from 'node:fs';
 
@@ -83,14 +83,14 @@ function splitFindings(findings, validLines) {
   return { inline, orphans };
 }
 
-function buildBody(data, counts, orphans, openBlocking) {
+function buildBody(data, counts, orphans, open) {
   const lines = [
     data.handoff
       ? `## 🤖 AI review — round ${data.round}: handing off to a human`
       : `## 🤖 AI review — round ${data.round}`,
     String(data.summary ?? '').trim(),
     `**Findings:** ${counts.blocking} blocking · ${counts['should-fix']} should-fix · ${counts.nit} nit — ` +
-      `**open blocking (incl. previous rounds): ${openBlocking}**`,
+      `**open blocking (incl. previous rounds): ${open.blocking} · unanswered should-fix: ${open.shouldFix}**`,
   ];
   if (data.areas?.length) lines.push(`**Areas covered:** ${data.areas.join(', ')}`);
   if (orphans.length) {
@@ -100,7 +100,13 @@ function buildBody(data, counts, orphans, openBlocking) {
     }
   }
   lines.push(
-    buildReviewMarker({ round: data.round, sha: data.commit_id, blocking: openBlocking, handoff: !!data.handoff }),
+    buildReviewMarker({
+      round: data.round,
+      sha: data.commit_id,
+      blocking: open.blocking,
+      should_fix: open.shouldFix,
+      handoff: !!data.handoff,
+    }),
   );
   return lines.join('\n\n');
 }
@@ -118,14 +124,18 @@ runMain(() => {
 
   const { inline, orphans } = splitFindings(findings, commentableLines(number));
   const counts = Object.fromEntries(SEVERITIES.map((s) => [s, findings.filter((f) => f.severity === s).length]));
-  const openBlocking = counts.blocking + Number(data.carried_blocking ?? 0);
+  // Unanswered should-fix holds the loop too: the fixer must fix it or answer `Won't fix:` before the PR is ready.
+  const open = {
+    blocking: counts.blocking + Number(data.carried_blocking ?? 0),
+    shouldFix: counts['should-fix'] + Number(data.carried_should_fix ?? 0),
+  };
   const resolve = data.resolve ?? [];
   const replies = data.replies ?? [];
 
   const review = {
     commit_id: data.commit_id,
     event: 'COMMENT',
-    body: buildBody(data, counts, orphans, openBlocking),
+    body: buildBody(data, counts, orphans, open),
     comments: inline.map((f) => ({
       path: f.path,
       line: f.line,
@@ -155,10 +165,10 @@ runMain(() => {
     console.log(`Posted review ${result.html_url}`);
     console.log(
       `Inline: ${inline.length} · in body: ${orphans.length} · resolved: ${resolve.length} · ` +
-        `replies: ${replies.length} · open blocking: ${openBlocking}`,
+        `replies: ${replies.length} · open blocking: ${open.blocking} · unanswered should-fix: ${open.shouldFix}`,
     );
   }
 
   if (data.handoff) return 3;
-  return openBlocking > 0 ? 2 : 0;
+  return open.blocking + open.shouldFix > 0 ? 2 : 0;
 });

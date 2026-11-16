@@ -43,8 +43,8 @@ Read the exit code from its report:
 
 | Exit | Next |
 |---|---|
-| `0` | Stop: **ready for human review / merge**. |
-| `2` | Go to step 2. |
+| `0` | Stop: **ready for human review / merge** (no open blocking, no unanswered should-fix). |
+| `2` | Blocking or unanswered should-fix open: go to step 2. |
 | `3` | Stop: **round cap reached, human takes over**. |
 | `1` or no code | Retry the reviewer once; if it fails again, stop and report the error. |
 | "nothing new to review" | Stop: the fixer pushed nothing and answered nothing; report the open threads. |
@@ -56,8 +56,8 @@ node <fix_dir>/scripts/open_threads.mjs <n>
 ```
 
 Read only `to_answer_count`, `review_rounds` and `recommended_fixer` (`model`, `effort`, `reasons`). If
-`to_answer_count` is 0 although the reviewer exited `2`, the open blocking threads were already answered and await
-the reviewer: go back to step 1.
+`to_answer_count` is 0 although the reviewer exited `2`, the open blocking / should-fix threads were already answered
+and await the reviewer: go back to step 1.
 
 **3. Fix.** Launch the fixer subagent with `recommended_fixer.model` and `recommended_fixer.effort`:
 

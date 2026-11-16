@@ -81,6 +81,7 @@ runMain(() => {
     changed_files: changedFiles(number),
     open_threads: openThreads,
     open_blocking_count: openThreads.filter((t) => t.severity === 'blocking').length,
+    open_should_fix_count: openThreads.filter((t) => t.severity === 'should-fix').length,
     threads_awaiting_reviewer: openThreads.filter((t) => t.awaiting_reviewer).length,
     ci_checks: ciChecks(number),
   };

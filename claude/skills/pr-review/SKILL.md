@@ -49,7 +49,7 @@ front matter `max_rounds`, env `AI_REVIEW_MAX_ROUNDS`, default 3), `last_reviewe
   user and stop. If threads await you but there are no new commits (the fixer only answered `Won't fix:` /
   `Question:`), do step 4 only: judge the replies, post with an empty `findings` list.
 - `next_round` > `max_rounds` → don't review. Write a findings file with `"handoff": true` and a summary listing the
-  still-open blocking threads, post it (step 7), stop. Endless loops produce churn, not quality.
+  still-open blocking and unanswered should-fix threads, post it (step 7), stop. Endless loops produce churn, not quality.
 
 ### 2. Load the project guide
 
@@ -84,7 +84,8 @@ For each entry in `open_threads`:
 - **Fixed** (the fixer says so and the code confirms): add its `thread_id` to `resolve`. You resolve, not the fixer.
 - **Not fixed, or fixed incorrectly:** `reply` with what is still wrong; keep open.
 - **Pushback with a reason:** judge it on its merits. If it holds, reply acknowledging and resolve. If not, reply with
-  a concrete counter-argument and keep open. Accept pushback on nits and should-fix rather than debating.
+  a concrete counter-argument and keep open. Accept pushback on nits and should-fix rather than debating: resolve
+  the thread, so an argued `Won't fix:` on a should-fix never holds the loop.
 - **`Question:` reply:** answer it in the thread; keep open.
 - **No reply, code unchanged:** leave it. It is still open and still counts.
 
@@ -151,7 +152,8 @@ Candidate format: `{ path, line, start_line?, area, claim, consequence, evidence
 | `nit` | Minor readability or idiom improvement. |
 
 Maintainability findings are `should-fix` or `nit` by default; they become `blocking` only through the project
-guide. When unsure between blocking and should-fix, pick should-fix: only blocking keeps the loop going.
+guide. When unsure between blocking and should-fix, pick should-fix. Both keep the loop going: blocking until fixed,
+should-fix until the fixer fixes it or answers it with a `Won't fix:` you accept. Nits never hold the loop.
 
 **Scope** — how big the fix is, independent of severity (a blocking issue can be a one-line fix). It routes the fixer
 to a stronger model and a plan-first workflow:
@@ -193,7 +195,8 @@ Write `<tmp>/findings.json`:
   ],
   "replies": [{ "comment_id": 1234567, "body": "Still an issue: the scope was added to `show` but not `update`." }],
   "resolve": ["PRRT_kwDO..."],
-  "carried_blocking": 0
+  "carried_blocking": 0,
+  "carried_should_fix": 0
 }
 ```
 
@@ -202,6 +205,8 @@ Write `<tmp>/findings.json`:
 - `category`: `correctness`, `maintainability`, `design`, `tests`, `security`, `data-integrity`, `migration`,
   `performance`, `api-contract`, `dependency`, `docs`, `project-rule`, or a stack area name.
 - `carried_blocking`: number of blocking threads from previous rounds you keep open (replied to or untouched).
+- `carried_should_fix`: number of should-fix threads from previous rounds you keep open that still need the fixer:
+  untouched, or you replied that the fix is missing or incomplete. Don't count threads you resolve.
 
 Preview, then post:
 
@@ -218,8 +223,8 @@ GitHub forbids requesting changes on your own PR).
 
 | Exit code | Meaning |
 |---|---|
-| `0` | No open blocking issues. Ready for human review or merge. |
-| `2` | Blocking issues open. Run the fixer, then review again. |
+| `0` | No open blocking and no unanswered should-fix. Ready for human review or merge. |
+| `2` | Blocking or unanswered should-fix open. Run the fixer, then review again. |
 | `3` | Round cap reached. Hand off to a human. |
 | `1` | Script error. |
 
@@ -240,8 +245,9 @@ Used by `pr-review-eval` and to review a branch before a PR exists. Invoked with
 ## Loop contract with the fixer
 
 1. The reviewer posts comments with header `**[<severity> · <scope>] · <category>** — <title>`. Scripts parse it.
-2. The fixer (`pr-fix`) addresses blocking and should-fix, may apply nits, writes a plan first for cross-cutting
-   comments, pushes, and replies on every thread with `Fixed in <sha>: …`, `Won't fix: <reason>` or
-   `Question: <question>`. It never resolves threads.
+2. The fixer (`pr-fix`) addresses blocking and should-fix (only within the PR's diff), may apply nits, writes a plan
+   first for cross-cutting comments, pushes, and replies on every thread with `Fixed in <sha>: …`,
+   `Won't fix: <reason>` or `Question: <question>`. It never resolves threads.
 3. The reviewer runs again, resolves verified threads, replies on the rest.
-4. Stop on exit `0` (done) or `3` (human takes over).
+4. Repeat while blocking or unanswered should-fix threads remain. Stop on exit `0` (done) or `3` (human takes
+   over).
