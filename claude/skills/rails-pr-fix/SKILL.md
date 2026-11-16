@@ -1,6 +1,6 @@
 ---
 name: rails-pr-fix
-description: Read the open review comments on a Ruby on Rails pull request on GitHub, decide which ones are valid, implement the needed changes, commit and push, then reply to every thread with "Fixed in <sha>" or "Won't fix: <reason>". It is the fixer half of the loop with the rails-pr-review skill, and also handles human reviewer comments. Use this skill whenever the user asks to address, handle, apply or fix PR review comments, run the fixer agent, "do what the reviewer said", or continue the review/fix loop — even if they just say "fix the comments on PR 123". Do NOT use it to review a PR; reviewing is the rails-pr-review skill's job.
+description: Only for the guliveo repository (elsewhere, use pr-fix). Read the open review comments on a Ruby on Rails pull request on GitHub, decide which ones are valid, implement the needed changes, commit and push, then reply to every thread with "Fixed in <sha>" or "Won't fix: <reason>". It is the fixer half of the loop with the rails-pr-review skill, and also handles human reviewer comments. Use this skill whenever the user asks to address, handle, apply or fix PR review comments, run the fixer agent, "do what the reviewer said", or continue the review/fix loop — even if they just say "fix the comments on PR 123". Do NOT use it to review a PR; reviewing is the rails-pr-review skill's job.
 ---
 
 # Rails PR Fix

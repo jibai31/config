@@ -27,7 +27,18 @@ Launch each with the Agent tool, setting `model` and `effort` explicitly as abov
 ## Prerequisites
 
 - A PR exists for the branch (`gh pr view --json number`). If not, stop and tell the user to open one first.
-- The working tree is clean (`git status --porcelain` empty). If not, stop and say so: the fixer commits.
+- **Work in the PR's worktree**, so loops on several PRs can run in parallel and the user's checkout is never
+  touched. `<repo path>` = the worktree that has the PR's head branch checked out:
+
+  ```bash
+  gh pr view <n> --json headRefName --jq .headRefName
+  git worktree list --porcelain   # find the "branch refs/heads/<headRefName>" entry
+  ```
+
+  None (e.g. the PR wasn't opened by `implement-issue`): `git fetch origin && git worktree add
+  .claude/worktrees/pr-<n> <headRefName>`, run the `worktree_setup` commands from `docs/review.md`, and use it. If
+  the branch is checked out in the main checkout, use that.
+- That tree is clean (`git -C <repo path> status --porcelain` empty). If not, stop and say so: the fixer commits.
 - `<review_dir>` = the `pr-review` skill directory, `<fix_dir>` = the `pr-fix` skill directory (siblings of this one).
 
 ## Loop
@@ -44,7 +55,7 @@ Read the exit code from its report:
 
 | Exit | Next |
 |---|---|
-| `0` | Stop: **ready for human review / merge** (no open blocking, no unanswered should-fix). |
+| `0` | Stop: **ready for human review / merge** (no open blocking, no unanswered should-fix). A human merges; never merge yourself. |
 | `2` | Blocking or unanswered should-fix open: go to step 2. |
 | `3` | Stop: **round cap reached, human takes over**. |
 | `1` or no code | Retry the reviewer once; if it fails again, stop and report the error. |

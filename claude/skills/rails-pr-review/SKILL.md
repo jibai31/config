@@ -1,6 +1,6 @@
 ---
 name: rails-pr-review
-description: Review a Ruby on Rails pull request on GitHub and post the findings as inline PR review comments, tagged by severity (blocking / should-fix / nit), the way a senior Rails reviewer would. Supports multi-round review loops — on later rounds it verifies whether previous comments were addressed, resolves fixed threads, and only reports new blocking issues. Use this skill whenever the user asks to review a PR, review a branch before merge, run the reviewer agent, do another review round, or check whether review comments were addressed in a Rails codebase — even if they just say "review this" or "take a look at PR 123". Do NOT use it to fix code; fixing is the coding agent's job.
+description: Only for the guliveo repository (elsewhere, use pr-review). Review a Ruby on Rails pull request on GitHub and post the findings as inline PR review comments, tagged by severity (blocking / should-fix / nit), the way a senior Rails reviewer would. Supports multi-round review loops — on later rounds it verifies whether previous comments were addressed, resolves fixed threads, and only reports new blocking issues. Use this skill whenever the user asks to review a PR, review a branch before merge, run the reviewer agent, do another review round, or check whether review comments were addressed in the guliveo codebase — even if they just say "review this" or "take a look at PR 123". Do NOT use it to fix code; fixing is the coding agent's job.
 ---
 
 # Rails PR Review
