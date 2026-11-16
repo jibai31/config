@@ -18,8 +18,6 @@ vim.g.rails_no_migrations = 1
 vim.g.rails_no_migration_prompt = 1
 vim.g.rails_migration_check = 0
 
-vim.g.codeium_idle_delay = 200
-
 -- Assume the /g flag on :s substitutions to replace all matches in a line
 vim.opt.gdefault = true
 

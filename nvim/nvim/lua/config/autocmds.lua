@@ -24,12 +24,12 @@ autocmd("User", {
       --   end),
       -- },
       mapping = {
-        -- Tab: confirm cmp popup if visible, otherwise fall through to Codeium
+        -- Tab: confirm cmp popup if visible
         ["<Tab>"] = cmp.mapping(function(fallback)
           if cmp.visible() then
             cmp.confirm({ select = true })
           else
-            fallback() -- lets Codeium's <Tab> mapping fire
+            fallback()
           end
         end, { "i", "s" }),
 
@@ -46,7 +46,6 @@ autocmd("User", {
 autocmd("FileType", {
   pattern = "TelescopePrompt",
   callback = function()
-    vim.b.codeium_enabled = false
     vim.b.matchparen_disable = 1
   end,
 })
