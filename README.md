@@ -192,7 +192,7 @@ $ git init
 $ git add .
 $ git commit -m "Initialize repository."
 $ git remote add origin https://github.com/jibai31/my_app.git
-$ git push -u origin master
+$ git push -u origin main
 ```
 
 

@@ -12,7 +12,7 @@ $ mkdir ~/.tmp
 
 And get the `.vimrc`:
 ```
-$ wget https://raw.github.com/jibai31/config/master/.vimrc
+$ wget https://raw.github.com/jibai31/config/main/.vimrc
 $ wget .vimrc ~/.vimrc
 ```
 
