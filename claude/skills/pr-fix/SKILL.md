@@ -51,8 +51,9 @@ If `to_answer_count` is 0, tell the user there is nothing to address and stop.
 ### 3. Load the project guide
 
 Read `docs/review.md` (fallback `REVIEW.md`): its front matter has the `verify` commands and `commit` format; its
-body links the project rules. Read `CLAUDE.md` / `AGENTS.md` and the rule docs relevant to the files you'll touch
-(e.g. the Accepted ADRs for that area) before editing.
+body links the project rules. Read `CLAUDE.md` / `AGENTS.md`, the coding rules in `.claude/rules/*.md` whose `paths:`
+front matter matches the files you'll touch, and the rule docs they link (e.g. the Accepted ADRs for that area)
+before editing.
 
 ### 4. Triage each thread that needs an answer
 

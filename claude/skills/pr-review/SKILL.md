@@ -22,7 +22,7 @@ Intended model: the strongest available at high effort (the orchestrator sets it
 |---|---|---|
 | Core | `references/core/*.md` | Stack-agnostic checklists: where bugs and rot hide |
 | Stack packs | `references/stacks/<stack>/` | Per-stack checklists, path → area mapping, what tooling already covers |
-| Project | `docs/review.md` in the repo | Which stacks, links to the project's rule docs, severity overrides, "don't flag" list |
+| Project | `docs/review.md` and `.claude/rules/*.md` in the repo | Guide: which stacks, links to the project's rule docs, severity overrides, "don't flag" list. Rules: the coding conventions implementers follow, scoped by `paths:` |
 
 Precedence: project > stack > core. The project guide's severities and "don't flag" list override your judgment.
 
@@ -59,8 +59,13 @@ format and `max_rounds`; its body maps areas to the project's rule docs, sets
 severity overrides, lists project-specific blocking rules and what not to flag. Read the docs it says to read for
 every review (e.g. ADR rules) now.
 
+Then read every `.claude/rules/*.md` whose `paths:` front matter matches a changed file (a file without `paths:`
+applies to every change). These are the coding rules the implementer was given: a breach is a `project-rule`
+finding, should-fix by default unless the guide or a linked ADR makes it blocking. Code that follows a rule is
+never a finding, even if a stack checklist suggests otherwise (project > stack).
+
 Without a guide: detect stacks from the files (`Gemfile` + `config/application.rb` → `rails`; `app.json` / `expo` in
-`package.json` → `expo-rn`), read `CLAUDE.md` / `AGENTS.md` / `docs/` conventions, and say in the summary that the
+`package.json` → `expo-rn`), read `CLAUDE.md` / `AGENTS.md` / `.claude/rules/` / `docs/` conventions, and say in the summary that the
 project has no review guide.
 
 ### 3. Gather context before judging

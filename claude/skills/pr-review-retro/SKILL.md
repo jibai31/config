@@ -1,12 +1,21 @@
 ---
 name: pr-review-retro
-description: Learn from past review loops — collect what the AI reviewer (pr-review) flagged on one or more PRs and what became of it (fixed, pushed back, overridden by a human), plus what humans caught that the AI missed, then propose concrete changes to the project's docs/review.md, the pr-review checklists, and new eval cases. Use whenever the user asks for a review retro, to tune or calibrate the reviewer, to learn from merged PRs, "why did the reviewer miss this", or "the reviewer keeps flagging X".
+description: Learn from past review loops — collect what the AI reviewer (pr-review) flagged on one or more PRs and what became of it (fixed, pushed back, overridden by a human), plus what humans caught that the AI missed, then propose concrete changes to the project's coding rules (.claude/rules), docs/review.md, the pr-review checklists, and new eval cases. Use whenever the user asks for a review retro, to tune or calibrate the reviewer, to learn from merged PRs, "why did the reviewer miss this", or "the reviewer keeps flagging X".
 ---
 
 # PR Review Retro
 
-The reviewer only gets better if its mistakes feed back into its rules. This skill turns review outcomes into rule
-changes and eval cases. You propose; the user approves; then you apply.
+The reviewer only gets better if its mistakes feed back into its rules, and the implementer only stops repeating a
+mistake if the rule reaches it *before* it writes code. This skill turns review outcomes into rule changes and eval
+cases. You propose; the user approves; then you apply.
+
+Where rules live (each fact in one place):
+
+- **`.claude/rules/*.md`** in the project — coding rules, scoped with `paths:` front matter; Claude Code loads them
+  for the implementer when it touches matching files, and the reviewer checks them. Conventions are stated there
+  directly; architecture decisions are only linked (the ADR owns them).
+- **`docs/review.md`** — review-only: area map, severity overrides, "don't flag". Never coding rules.
+- **`pr-review` checklists** — generic, cross-project review heuristics.
 
 ## 1. Collect
 
@@ -44,20 +53,28 @@ For each pattern, propose exactly one change, at the narrowest layer that fixes 
 
 | Fix | Where |
 |---|---|
-| Project-specific false positive | `docs/review.md` → "Don't flag" |
+| Project-specific false positive | `docs/review.md` → "Don't flag"; if a `.claude/rules/` line caused it, fix or narrow that line |
 | Project-specific severity wrong | `docs/review.md` → "Severity overrides" |
-| Project rule the reviewer didn't know | The project doc that owns the rule (an ADR, if it is an architecture decision — then the guide's area map links it); never write the rule into `docs/review.md` itself |
+| Convention the implementer broke (fixed after a finding) or didn't know (human finding), that isn't an architecture decision | `.claude/rules/<area>.md`: add the rule to the file whose `paths:` cover the files involved, or create a new file with `paths:` front matter (same naming: `mobile-*`, `backend-*`, or a cross-stack topic). Recurring `fixed` findings of the same kind are the main signal: the reviewer catches it, but the coder should never have written it |
+| Architecture decision the reviewer or implementer didn't know | The ADR that owns it (amendment or new ADR — follow `docs/adrs/README.md`); the guide's area map and the matching `.claude/rules/` file link it |
+| Rule exists but didn't reach the implementer | Widen the rules file's `paths:` (check the actual files of the PR against the globs) |
+| Rule a linter or type checker could enforce | Propose the lint/CI rule as well; once it is enforced, remove the prose rule and add it to the guide's "Don't flag" |
 | Area not loaded when it should have been | `docs/review.md` front matter `areas`, or the stack README path table |
 | Generic checklist gap or overly broad item | `pr-review/references/core/*.md` or `references/stacks/<stack>/*.md` |
 | Process problem (verification too weak, budget) | `pr-review/SKILL.md` or `pr-fix/SKILL.md` |
 | Every miss, and every recurring false positive | A new eval case (`pr-review-eval` skill): the miss as `expected`, the false positive as `must_not_flag` |
+
+A new or changed coding rule must be: imperative and checkable on a line of code ("Style with NativeWind
+`className` only", not "keep styles clean"); in the narrowest file whose `paths:` cover it; and not a restatement of
+an ADR (link instead). Keep each rules file short — split by path when it grows past ~40 lines, since every line
+loads into the implementer's context.
 
 Present them as a table: signal (PR + thread link) → proposed change → file → diff preview. Then ask the user which
 to apply. Don't edit before they approve.
 
 ## 4. Apply
 
-- Project docs: on a branch per the repo's git workflow, one commit, PR (the PR itself goes through `pr-loop`).
+- Project docs and `.claude/rules/`: on a branch per the repo's git workflow, one commit, PR (the PR itself goes through `pr-loop`).
 - Skill files (`~/.claude/skills/…`): edit in place; tell the user to run their config sync to version them.
 - Eval cases: create them with the `pr-review-eval` skill's case format, then run that skill to confirm the
   reviewer now catches the miss (and that nothing else regressed).
