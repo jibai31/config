@@ -9,8 +9,8 @@ Input: an epic issue number (or URL). Output: an epic branch and a set of sub-is
 sub-issues and to each other with "blocked by" links. The links are the plan: whoever implements picks only open
 sub-issues whose blockers are all closed, and runs independent ones in parallel. Never write the order in prose.
 
-Pipeline this skill sits in: `grill-me` (epic body) → **split-feature** → implement each ready sub-issue → `pr-loop`
-on its PR → merge into the epic branch → … → `close-feature`.
+Pipeline this skill sits in: `grill-me` (epic body) → **split-feature** → `implement-issue` on each ready sub-issue
+→ `pr-loop` on its PR → merge into the epic branch → … → `close-feature`.
 
 ## 1. Check the epic
 
@@ -140,5 +140,5 @@ Check: `total` equals the number of planned slices, `cycle` is `null`, every pla
 `gh issue edit <n> --add-blocked-by <m>` or `--parent <epic>`.
 
 Report: epic branch, sub-issue list with links, the ready set (what can start now, in parallel), and the next step —
-implement a ready sub-issue on its own branch from the epic branch, open its PR against the epic branch, run
-`pr-loop`. After the last one merges, run `close-feature`.
+run `implement-issue` on a ready sub-issue (branch from the epic branch, PR against it), then
+`pr-loop` on its PR. After the last one merges, run `close-feature`.

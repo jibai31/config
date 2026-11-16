@@ -5,8 +5,8 @@ description: Close an epic whose sub-issues are all merged into the epic branch 
 
 # Close Feature
 
-Input: the epic issue number. Last step of `grill-me` → `split-feature` → implement + `pr-loop` per sub-issue →
-**close-feature**. You check, consolidate and propose; the user approves every change to rules, ADRs and
+Input: the epic issue number. Last step of `grill-me` → `split-feature` → `implement-issue` + `pr-loop` per sub-issue
+→ **close-feature**. You check, consolidate and propose; the user approves every change to rules, ADRs and
 CLAUDE.md, and the epic PR is merged by a human.
 
 `<split_dir>` = the `split-feature` skill directory, `<retro_dir>` = the `pr-review-retro` skill directory
@@ -45,7 +45,7 @@ up.
 3. Build the table: criterion → evidence → pass / fail / not covered.
 
 Any fail or "not covered": **stop here**. Don't patch it in this step: propose a new sub-issue (with `split-feature`
-in re-plan mode) that goes through the normal implement → `pr-loop` path, then rerun this skill.
+in re-plan mode) that goes through the normal `implement-issue` → `pr-loop` path, then rerun this skill.
 
 ## 3. ADRs match the code
 
