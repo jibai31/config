@@ -1,2 +1,3 @@
 {"at":"2026-11-13T18:04:23.900Z","label":"baseline","aggregate":{"cases":5,"runs":5,"pass_rate":60,"recall":90,"required_recall":100,"severity_accuracy":100,"scope_accuracy":80,"must_not_hits":2,"false_blocking":1,"unexpected_per_run":0.4}}
 {"at":"2026-11-13T18:05:43.855Z","label":"baseline, cases fixed","aggregate":{"cases":5,"runs":5,"pass_rate":100,"recall":90,"required_recall":100,"severity_accuracy":100,"scope_accuracy":100,"must_not_hits":0,"false_blocking":0,"unexpected_per_run":0.2}}
+{"at":"2026-11-16T15:20:49.253Z","label":"coding rules in .claude/rules; pr-review reads them","aggregate":{"cases":5,"runs":5,"pass_rate":100,"recall":90,"required_recall":100,"severity_accuracy":100,"scope_accuracy":80,"must_not_hits":0,"false_blocking":0,"unexpected_per_run":0}}

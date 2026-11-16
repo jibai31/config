@@ -79,4 +79,6 @@ End with a short report:
 - PR link
 
 If the final state is ready, suggest the user runs `pr-review-retro` on the PR after merging, so the reviewer learns
-from what the human finds.
+from what the human finds. If the PR targets an epic branch (`feature/<epic>-…`, not `main`), check the PR body
+has `Closes #<sub-issue>` (the "Close linked issues" workflow closes it on merge, which unblocks the next slices),
+and remind the user to run `close-feature` once the epic has no open sub-issue.
