@@ -1,0 +1,18 @@
+{
+  "id": "rails-unscoped-update",
+  "intent": "Add tastings API: list my tastings, and edit a tasting (notes, rating, date).",
+  "commit_message": "Add tastings index and update endpoints",
+  "expected": [
+    { "id": "unscoped-find", "path": "app/controllers/api/v1/tastings_controller.rb", "anchor": "Tasting\\.find\\(params", "span": 1,
+      "severity": "blocking", "scope": "local", "note": "Any user can update another user's tasting by id." },
+    { "id": "permit-user-id", "path": "app/controllers/api/v1/tastings_controller.rb", "anchor": "permit\\(.*:user_id", "span": 1,
+      "severity": "blocking", "scope": "local", "note": "Client can reassign a tasting to another user." },
+    { "id": "no-request-spec", "path": "app/controllers/api/v1/tastings_controller.rb", "anchor": "class TastingsController",
+      "anchor_end": "def tasting_params", "span": 2, "severity": "should-fix", "required": false,
+      "note": "New endpoints without request specs (incl. other-user case)." }
+  ],
+  "must_not_flag": [
+    { "id": "index-scoped-preloaded", "path": "app/controllers/api/v1/tastings_controller.rb", "anchor": "current_user\\.tastings\\.includes", "span": 0,
+      "note": "Correctly scoped and preloaded; flagging N+1 or scoping here is a false positive." }
+  ]
+}

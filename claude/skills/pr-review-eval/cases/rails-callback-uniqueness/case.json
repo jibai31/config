@@ -1,0 +1,71 @@
+{
+  "id": "rails-callback-uniqueness",
+  "intent": "One tasting per card per user, an email every 10 tastings, and a 'shared' flag on tastings for the upcoming share feature.",
+  "commit_message": "Tasting milestones, uniqueness and shared flag",
+  "expected": [
+    {
+      "id": "uniqueness-without-index",
+      "path": "app/models/tasting.rb",
+      "anchor": "uniqueness: \\{ scope: :user_id \\}",
+      "span": 1,
+      "severity": "should-fix",
+      "blocking_ok": true,
+      "scope": "cross-cutting",
+      "note": "Uniqueness validation without a unique index on (user_id, card_id): duplicates under concurrent requests.",
+      "required": true,
+      "keywords": "index|race|concurren|duplicate"
+    },
+    {
+      "id": "after-save-mail",
+      "path": "app/models/tasting.rb",
+      "anchor": "after_save :notify_milestone",
+      "anchor_end": "deliver_later",
+      "span": 1,
+      "severity": "should-fix",
+      "blocking_ok": true,
+      "note": "Mail enqueued before commit (fires on rollback; job may not find the record); also fires on every update, not just create — re-sends the milestone mail when a 10th tasting is edited.",
+      "required": true,
+      "keywords": "after_save|after_commit|commit|every save|every update|rollback"
+    },
+    {
+      "id": "user-email-missing",
+      "path": "app/mailers/milestone_mailer.rb",
+      "anchor": "params\\[:user\\]\\.email",
+      "span": 1,
+      "severity": "blocking",
+      "required": false,
+      "blocking_ok": true,
+      "note": "users table has no email column (db/schema.rb): the mail raises NoMethodError.",
+      "keywords": "email"
+    }
+  ],
+  "must_not_flag": [
+    {
+      "id": "add-column-default",
+      "path": "db/migrate/20261101000000_add_shared_to_tastings.rb",
+      "anchor": "add_column",
+      "span": 0,
+      "note": "Adding a column with a constant default is metadata-only on PostgreSQL 11+; no lock or rewrite. Only a locking/rewrite finding on this line is a false positive.",
+      "keywords": "lock|rewrite|default|concurren|downtime|large table"
+    }
+  ],
+  "acceptable": [
+    {
+      "id": "missing-mail-template",
+      "path": "app/mailers/milestone_mailer.rb",
+      "anchor": "mail\\(to:",
+      "span": 1,
+      "keywords": "template|view",
+      "note": "No app/views/milestone_mailer/reached.* in the fixture: valid."
+    },
+    {
+      "id": "no-specs",
+      "path": "app/models/tasting.rb",
+      "anchor": "class Tasting",
+      "anchor_end": "deliver_later",
+      "span": 1,
+      "keywords": "spec|test",
+      "note": "No specs for the new validation and callback: valid."
+    }
+  ]
+}

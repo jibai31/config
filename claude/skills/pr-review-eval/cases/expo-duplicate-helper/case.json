@@ -1,0 +1,38 @@
+{
+  "id": "expo-duplicate-helper",
+  "intent": "Reusable card tile for the collection grid.",
+  "commit_message": "Add CardTile component",
+  "expected": [
+    {
+      "id": "duplicate-format-rarity",
+      "path": "src/screens/CardTile.tsx",
+      "anchor": "function rarityLabel",
+      "anchor_end": "return 'Legendary'",
+      "span": 2,
+      "severity": "should-fix",
+      "severity_min": "should-fix",
+      "scope": "local",
+      "note": "Duplicates formatRarity (src/features/collection/formatRarity.ts) and drifts: no rounding of fractional rarity.",
+      "required": true
+    }
+  ],
+  "must_not_flag": [
+    {
+      "id": "collected-badge",
+      "path": "src/screens/CardTile.tsx",
+      "anchor": "collected \\? <Text>Collected",
+      "span": 0,
+      "note": "Plain conditional render; nothing wrong with it."
+    }
+  ],
+  "acceptable": [
+    {
+      "id": "a11y-label-incomplete",
+      "path": "src/screens/CardTile.tsx",
+      "anchor": "accessibilityLabel=\\{name\\}",
+      "span": 0,
+      "keywords": "accessib|screen reader|label",
+      "note": "Label omits rarity and collected state: valid."
+    }
+  ]
+}

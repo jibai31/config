@@ -1,0 +1,11 @@
+{
+  "name": "tasting-app",
+  "main": "index.ts",
+  "dependencies": {
+    "drizzle-orm": "^0.44.0",
+    "expo": "~54.0.0",
+    "expo-sqlite": "~16.0.0",
+    "react": "19.1.0",
+    "react-native": "0.81.0"
+  }
+}

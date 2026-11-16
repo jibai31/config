@@ -1,0 +1,45 @@
+{
+  "id": "expo-network-in-screen",
+  "intent": "Card detail screen listing the producers of an appellation (can be several hundred for large appellations).",
+  "commit_message": "Add card detail screen with producers",
+  "expected": [
+    {
+      "id": "network-in-screen",
+      "path": "src/screens/CardDetailScreen.tsx",
+      "anchor": "apiFetch\\(`/v1/cards",
+      "span": 2,
+      "severity": "blocking",
+      "scope": "local",
+      "note": "Reads server data directly; breaks offline and the architecture rule — use useProducers (already exists). Fix stays in the screen (swap to useProducers): local."
+    },
+    {
+      "id": "scrollview-list",
+      "path": "src/screens/CardDetailScreen.tsx",
+      "anchor": "<ScrollView>",
+      "anchor_end": "producers\\.map",
+      "span": 0,
+      "severity": "should-fix",
+      "required": false,
+      "note": "Hundreds of items: use FlatList."
+    },
+    {
+      "id": "index-key",
+      "path": "src/screens/CardDetailScreen.tsx",
+      "anchor": "key=\\{index\\}",
+      "span": 0,
+      "severity": "nit",
+      "severity_min": "nit",
+      "required": false,
+      "note": "Use producer.id."
+    }
+  ],
+  "must_not_flag": [
+    {
+      "id": "existing-api-any",
+      "path": "src/sync/api.ts",
+      "anchor": "Promise<any>",
+      "span": 0,
+      "note": "Not part of the diff."
+    }
+  ]
+}

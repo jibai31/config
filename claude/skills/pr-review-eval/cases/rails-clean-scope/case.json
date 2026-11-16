@@ -1,0 +1,12 @@
+{
+  "id": "rails-clean-scope",
+  "intent": "Refactor: move the tastings index ordering and card filter into named scopes, with model specs. No behavior change.",
+  "commit_message": "Extract tasting scopes",
+  "expected": [],
+  "must_not_flag": [
+    { "id": "scoped-index", "path": "app/controllers/api/v1/tastings_controller.rb", "anchor": "current_user\\.tastings\\.includes", "span": 0,
+      "note": "Scoped and preloaded." },
+    { "id": "for-card-all", "path": "app/models/tasting.rb", "anchor": "scope :for_card", "span": 0,
+      "note": "Returning `all` for a blank card keeps the previous optional-filter behavior." }
+  ]
+}
