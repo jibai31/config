@@ -37,7 +37,8 @@ Repeat until a stop condition:
 **1. Review.** Launch the reviewer subagent (Opus, high):
 
 > Use the pr-review skill to review PR #<n> in <repo path>. Post the review. Reply with only: the round number, the
-> exit code of post_review.mjs, counts per severity and scope, and the review summary (≤ 5 lines).
+> real exit code of post_review.mjs (run unpiped, not inferred from the dry run), counts per severity and scope,
+> and the review summary (≤ 5 lines).
 
 Read the exit code from its report:
 

@@ -215,6 +215,9 @@ node <skill_dir>/scripts/post_review.mjs <tmp>/findings.json --dry-run
 node <skill_dir>/scripts/post_review.mjs <tmp>/findings.json
 ```
 
+Run the real post unpiped (no `| tail`, `| head`, etc.: a pipe replaces its exit code with the last command's), or
+read `$?` / `${PIPESTATUS[0]}` right after it. Report that exit code, never one inferred from the dry run.
+
 The script validates severity and scope, checks each finding against the diff (findings outside it go to the review
 body instead of being lost), and posts one review with event `COMMENT` (an agent often runs as the PR author, and
 GitHub forbids requesting changes on your own PR).
