@@ -138,6 +138,9 @@ Run the `verify` commands from `docs/review.md` front matter for every path you 
 formatters), plus the full test suite of each stack you touched if it is fast enough. All green before going on; if
 something fails that you can't fix, stop and report — never ship a red branch.
 
+Once green, run the `simplify` skill on the diff (reuse, simplification, efficiency, altitude), then re-run the
+`verify` commands. Keep its edits only if they stay in scope and green; revert any that break an ADR or rule.
+
 Then re-read your own diff (`git diff origin/<base>...`) as a reviewer would, against the issue's acceptance
 criteria, the `Read for every review` list in `docs/review.md`, and the governing list: walk each ADR and each rule
 file whose `paths:` match a file in the final diff (`git diff --name-only origin/<base>...`), and check the diff
