@@ -15,6 +15,28 @@ import { join, resolve } from 'node:path';
 
 const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8' }).trim();
 
+// Project cases pin an old commit (base_ref), whose review guide and coding rules are not the ones under test. When
+// the case set has a config.json next to its cases/ folder ({ "guide_paths": [...] }), those paths are copied from
+// the repository's working tree (uncommitted edits included) over the base commit, in a "Project guide" commit
+// that becomes the reviewed base: the diff stays the PR's, the rules are today's. A case opts out with
+// "guide_overlay": false. The eval set itself (.claude/review-evals) is always removed: the reviewer must not see
+// the expected findings.
+function overlayGuide(caseDir, repoRoot, workdir, spec) {
+  const configFile = join(caseDir, '..', '..', 'config.json');
+  const config = existsSync(configFile) ? JSON.parse(readFileSync(configFile, 'utf8')) : {};
+  const paths = spec.guide_overlay === false ? [] : (config.guide_paths ?? []);
+  for (const p of paths) {
+    const src = join(repoRoot, p);
+    rmSync(join(workdir, p), { recursive: true, force: true });
+    if (existsSync(src)) cpSync(src, join(workdir, p), { recursive: true });
+  }
+  rmSync(join(workdir, '.claude', 'review-evals'), { recursive: true, force: true });
+  git(workdir, 'add', '-A');
+  if (git(workdir, 'status', '--porcelain')) {
+    git(workdir, '-c', 'user.name=eval', '-c', 'user.email=eval@localhost', 'commit', '-q', '-m', 'Project guide');
+  }
+}
+
 function main() {
   const [caseArg, workArg, ...rest] = process.argv.slice(2);
   if (!caseArg || !workArg) throw new Error('Usage: node prepare_case.mjs CASE_DIR WORK_ROOT [--repo REPO_ROOT]');
@@ -38,6 +60,7 @@ function main() {
     git(workdir, '-c', 'user.name=eval', '-c', 'user.email=eval@localhost', 'commit', '-q', '-m', 'Base');
   } else if (spec.base_ref && repoRoot) {
     git(repoRoot, 'worktree', 'add', '-q', '--detach', workdir, spec.base_ref);
+    overlayGuide(caseDir, repoRoot, workdir, spec);
   } else {
     throw new Error(`${spec.id}: needs a base/ directory, or base_ref plus --repo`);
   }

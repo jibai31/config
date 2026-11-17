@@ -42,11 +42,28 @@ Each entry in `open_threads` has `source` (`ai-review` or `human`), `severity` a
 first; act on the latest reviewer message).
 
 Top-level `recommended_fixer` says which model/effort this round deserves (Opus high for any blocking or
-cross-cutting comment, or when the loop has not converged after 2 rounds; Sonnet medium otherwise). An orchestrator
-uses it to launch you. If you were launched directly and you are a weaker model than recommended, say so in the
-report.
+cross-cutting comment, or when the last review round left at least as many blocking + should-fix open as the one
+before; Sonnet medium otherwise). An orchestrator uses it to launch you. If you were launched directly and you are a
+weaker model than recommended, say so in the report.
 
-If `to_answer_count` is 0, tell the user there is nothing to address and stop.
+If `to_answer_count` is 0, tell the user there is nothing to address and stop — unless you are in CI mode.
+
+### CI mode
+
+When asked to fix failing CI checks (`pr-loop` does it once the review is clean), the failing checks are the work
+list, on top of any thread that needs an answer:
+
+```bash
+gh pr checks <n> --json name,bucket,link --jq '.[] | select(.bucket == "fail")'
+gh run view <run id from the link> --log-failed
+```
+
+Find the cause in the log, reproduce it locally with the matching `verify` / `full_verify` command from
+`docs/review.md`, then fix it like a `local` comment (step 5 if it spans several files). A flaky failure unrelated to
+the PR: rerun it once (`gh run rerun <run id> --failed`), and if it passes, report it as flaky with no commit; never
+retry more than once. A failure that is not caused by the PR and isn't flaky (e.g. broken on the base branch): no
+change, report it. The commit message names the check (`#18: Fix CI (rspec: …)`). There are no threads to reply to
+for checks: report per check instead (name, cause, outcome).
 
 ### 3. Load the project guide
 

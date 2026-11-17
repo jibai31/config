@@ -1,12 +1,13 @@
 ---
 name: prepare-feature
-description: Turn an agreed plan (usually grill-me's decision summary, in the same session) into a ready epic — write the spec into the epic GitHub issue body (goal, scope, behaviour, API and data model changes, acceptance criteria, related ADRs), draft new or amended ADRs, get every Proposed ADR the epic relies on accepted, and commit them on the epic branch. Ready means split-feature can slice it. Use whenever the user asks to prepare, write up, spec or detail an epic / feature issue, update the epic issue after a grilling, or "prepare issue 42 for implementation". Do NOT use it to interview the user about the need (grill-me), to slice the epic (split-feature) or to implement.
+description: Turn an agreed plan (grill-me's decision summary, from the same session or its issue comment) into a ready epic — write the spec into the epic GitHub issue body (goal, scope, behaviour, API and data model changes, acceptance criteria, related ADRs), create the epic branch, draft new or amended ADRs, get every Proposed ADR the epic relies on accepted, and ship them in a PR into the epic branch that goes through pr-loop. Ready means split-feature can slice it. Use whenever the user asks to prepare, write up, spec or detail an epic / feature issue, update the epic issue after a grilling, or "prepare issue 42 for implementation". Do NOT use it to interview the user about the need (grill-me), to slice the epic (split-feature) or to implement.
 ---
 
 # Prepare Feature
 
-Input: an epic issue number (or URL), normally right after `grill-me` in the same session. Output: the epic issue
-body filled with the spec, and every ADR it relies on Accepted on the epic branch.
+Input: an epic issue number (or URL), right after `grill-me` in the same session or in a new one. Output: the epic
+issue body filled with the spec, the epic branch, and a reviewed PR into it that makes every ADR the epic relies on
+Accepted.
 
 Pipeline this skill sits in: `grill-me` (refine the need) → **prepare-feature** → `split-feature` →
 `implement-issue` + `pr-loop` per sub-issue → `close-feature`.
@@ -27,8 +28,12 @@ that changing the spec may need a `split-feature` re-plan, and go on only on the
 Then read the project's ADR rules and index (`docs/adrs/README.md`), the architecture overview, the ADRs and code
 the feature touches, and the roadmap (what it schedules later is out of scope).
 
-Find the decisions: `grill-me`'s decision summary in this conversation, else the conversation itself, else only the
-issue (new session). In the last case, expect step 3 to send the user back to `grill-me`.
+Find the decisions, in this order:
+
+1. `grill-me`'s decision summary in this conversation (and the discussion around it).
+2. Else the latest issue comment whose body starts with `## Decision summary` (`grill-me` posts it there, so a new
+   session can pick it up). Later comments may refine it: read the ones after it too.
+3. Else only the issue body. Expect step 3 to send the user back to `grill-me`.
 
 ## 2. Draft the body
 
@@ -80,27 +85,55 @@ the split.
 Show the final body. If the original body had content the new one drops, say what. Update the issue
 (`gh issue edit <n> --body-file …`) only after the user approves.
 
-## 5. Accept the ADRs before implementation
+## 5. Epic branch
+
+Create `feature/<n>-<slug>` (slug: 2–5 kebab-case words from the title) from `origin/main` if it doesn't exist,
+without checking it out:
+
+```bash
+git fetch origin
+git push origin origin/main:refs/heads/feature/<n>-<slug>
+```
+
+Every PR of the epic (this one, then each sub-issue's) targets it. `split-feature` reuses it.
+
+## 6. Accept the ADRs, in a reviewed PR
 
 Slices may only implement **Accepted** ADRs (the reviewer flags code that implements a Proposed one), so the
-decisions are ratified here, not after the code is written.
+decisions are ratified here, before any code is written. They reach the epic branch through a PR and `pr-loop`,
+like any other change: nothing is pushed to the epic branch directly.
 
-1. If a decision needs a new or amended ADR (see "When to Write an ADR" in `docs/adrs/README.md`), draft it with the
-   project's template, from the agreed spec.
-2. List every ADR the epic relies on that is **Proposed** (existing or just drafted) and ask the user to accept each
-   one. Accepting is the user's decision: never set the status without their yes.
-3. On yes, on the epic branch `feature/<n>-<slug>` (create it from `origin/main` if it doesn't exist; `split-feature`
-   reuses it): set the status line to `Accepted` and the date, update the ADR index and the docs that link it
-   (architecture overview), commit (`#<n>: Accept ADR-NNNN`, per the project's commit format) and push. Then switch
-   back to where the user was.
-4. An ADR the user doesn't accept: leave it Proposed, list it under "Open questions", and say the spec needs another
-   `grill-me` pass to stop relying on it. `split-feature` refuses to slice until it is resolved.
+1. List the changes the spec needs in the repository: new or amended ADRs (see "When to Write an ADR" in
+   `docs/adrs/README.md`), every ADR the epic relies on that is still **Proposed**, and the docs that link them (ADR
+   index, architecture overview). None → skip to step 7.
+2. Ask the user to accept each Proposed ADR (existing or about to be drafted). Accepting is the user's decision:
+   never set the status without their yes. An ADR the user doesn't accept stays Proposed: list it under "Open
+   questions" and say the spec needs another `grill-me` pass to stop relying on it (`split-feature` refuses to slice
+   until it is resolved). Leave it out of the PR.
+3. Branch in the user's checkout. It must be clean (`git status --porcelain` empty); if not, stop and ask.
 
-Then update the issue body's "Related ADRs" so each one shows as Accepted.
+   ```bash
+   git switch -c docs/<n>-adrs origin/feature/<n>-<slug>
+   ```
 
-## 6. Report
+4. Draft the ADRs from the agreed spec with the project's template, set each accepted one to `Accepted` with the
+   date, update the ADR index and the docs that link them. Run the `verify` commands from `docs/review.md` for the
+   files touched.
+5. Commit (`#<n>: Accept ADR-NNNN …`, per the project's commit format, with the attribution trailer), push
+   (`git push -u origin HEAD`), and open the PR into the epic branch:
+   `gh pr create --base feature/<n>-<slug> --title "#<n>: Accept ADRs for <epic title>"`. The body fills the project's
+   PR template, but its first line is `Refs #<n>`, **never** `Closes #<n>`: the "Close linked issues" workflow would
+   close the epic when the PR merges into the epic branch. End with the PR attribution line.
+6. Run the `pr-loop` skill on the PR. Its reviewer checks the ADRs against the project's ADR rules; a fix that
+   changes a decision (not just its wording) goes back to the user before it is pushed.
+7. When `pr-loop` reports ready, a human merges the PR into the epic branch with a **merge commit** (no squash, no
+   rebase: the loop's commits are kept for retros and evals). Never merge yourself.
+
+Then update the issue body's "Related ADRs": each accepted one shows as Accepted, with a link to the ADR PR.
+
+## 7. Report
 
 - Issue link; body updated or not (and what was dropped)
-- ADRs drafted, accepted, left Proposed; epic branch and commits
+- Epic branch; ADRs drafted, accepted, left Proposed; ADR PR link and `pr-loop` final state
 - Gaps sent back to `grill-me`, if any
-- Next step: `split-feature <n>` when ready
+- Next step: once the ADR PR is merged into the epic branch (or there was none), `split-feature <n>`

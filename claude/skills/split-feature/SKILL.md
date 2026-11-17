@@ -1,13 +1,15 @@
 ---
 name: split-feature
-description: Split an epic GitHub issue into sub-issues that can each be implemented, reviewed (pr-loop) and merged on their own into the epic branch — API contract slices first, ordering expressed as GitHub "blocked by" links so independent slices run in parallel and only unblocked ones get picked. Creates the epic branch and the sub-issues after the user approves the plan. Use whenever the user asks to split, slice, break down or plan an epic / feature issue into tasks or sub-issues. Do NOT use it to refine the need (grill-me), to write the epic spec or accept its ADRs (prepare-feature), or to implement a slice.
+description: Split an epic GitHub issue into sub-issues that can each be implemented, reviewed (pr-loop) and merged on their own into the epic branch, one after the other — API contract slices first, ordering expressed as GitHub "blocked by" links and issue numbers so only unblocked ones get picked. Creates the sub-issues (and the epic branch if missing) after the user approves the plan. Use whenever the user asks to split, slice, break down or plan an epic / feature issue into tasks or sub-issues. Do NOT use it to refine the need (grill-me), to write the epic spec or accept its ADRs (prepare-feature), or to implement a slice.
 ---
 
 # Split Feature
 
 Input: an epic issue number (or URL). Output: an epic branch and a set of sub-issues, linked to the epic as GitHub
-sub-issues and to each other with "blocked by" links. The links are the plan: whoever implements picks only open
-sub-issues whose blockers are all closed, and runs independent ones in parallel. Never write the order in prose.
+sub-issues and to each other with "blocked by" links. Sub-issues are implemented **sequentially**: one at a time,
+each branched from the epic branch after the previous one merged, so each builds on the last and they never conflict.
+The links and the issue numbers are the plan: `implement-issue` picks the lowest-numbered open sub-issue whose
+blockers are all closed. Never write the order in prose.
 
 Pipeline this skill sits in: `grill-me` → `prepare-feature` (epic body, ADRs) → **split-feature** →
 `implement-issue` on each ready sub-issue → `pr-loop` on its PR → merge into the epic branch → … → `close-feature`.
@@ -30,9 +32,10 @@ The body is the spec (not the comments). Note its acceptance criteria and its re
 
 ## 2. Read before slicing
 
-- Every ADR the epic links, and its status **on the epic branch** if it exists (`prepare-feature` accepts ADRs there,
-  before `main` has them). If the epic relies on an ADR that is still **Proposed**, stop: the reviewer flags code
-  that implements a Proposed ADR, so send the user back to `prepare-feature` to get it accepted first.
+- Every ADR the epic links, and its status **on the epic branch** if it exists (`prepare-feature` accepts ADRs there
+  through a PR, before `main` has them). If the epic relies on an ADR that is still **Proposed** there, stop: the
+  reviewer flags code that implements a Proposed ADR. If `prepare-feature`'s ADR PR (`docs/<epic>-adrs`) is still
+  open, say it must be merged first; otherwise send the user back to `prepare-feature`.
 - The project's ADR rules (`docs/adrs/README.md`), architecture overview, and `docs/review.md`: its `areas` map tells
   you which areas, docs and `.claude/rules/` files each slice will touch.
 - The code the epic touches (explore it; don't ask what the codebase answers). Check whether the contract tooling
@@ -49,20 +52,19 @@ Each slice is one PR into the epic branch that CI passes on its own and leaves t
   unreachable screen is fine; a broken build or a failing test is not.
 - **Testable.** Each slice has its own acceptance criteria and the tests that prove them.
 
-Ordering — add a "blocked by" link only for a real dependency, so the most slices can run in parallel:
+Ordering — slices run one at a time in issue-number order, so create them in the order you want them built. Add a
+"blocked by" link for each real dependency too: it keeps a re-plan or a manual pick from starting a slice too early.
 
 1. **Contract before consumer.** A slice that changes the API (endpoint, request/response shape, auth) lands the
    contract first — request specs and the endpoint, plus the regenerated contract files when the tooling exists
    (`generate`). The client slice that calls it is blocked by that contract slice. One contract slice per endpoint
-   group, so client work on another endpoint is not held up.
+   group.
 2. **Schema before use.** Server migrations/models before the endpoints that use them; client (on-device) schema and
    migration before the client features that read them. A synced table needs both sides; follow the project's sync
    ADR, if any, for the order.
-3. **Shared files serialise.** Two slices that edit the same files (routes, schema, a shared component) would
-   conflict when run in parallel: chain them, or move the shared edit into the earlier slice.
-4. **Docs travel with the code.** Each slice updates the docs its change affects. ADRs are already accepted
+3. **Docs travel with the code.** Each slice updates the docs its change affects. ADRs are already accepted
    (`prepare-feature`); a slice that finds it must diverge from one amends it in its own PR, with the user's approval.
-5. No slice for "tests" or "docs" alone, and no final "integration" slice: `close-feature` checks the epic end to
+4. No slice for "tests" or "docs" alone, and no final "integration" slice: `close-feature` checks the epic end to
    end.
 
 Check coverage: every epic acceptance criterion maps to at least one slice; every slice traces to a criterion or to
@@ -72,11 +74,10 @@ a prerequisite of one. Anything left over is out of scope — say so rather than
 
 Show, before creating anything:
 
-- Epic branch name: `feature/<epic>-<slug>` from `main` (per the project's git workflow).
-- A table: local id (S1, S2…), title, stack (a `stacks` entry from `docs/review.md`, contracts, or docs), blocked
-  by (local ids), epic criteria covered, rough size.
-- The dependency graph as a Mermaid `graph LR`, and the first wave (slices with no blockers) that can start in
-  parallel.
+- Epic branch: `feature/<epic>-<slug>` (normally created by `prepare-feature`; from `main` otherwise).
+- A table, in build order: local id (S1, S2…), title, stack (a `stacks` entry from `docs/review.md`, contracts, or
+  docs), blocked by (local ids), epic criteria covered, rough size.
+- The dependency graph as a Mermaid `graph LR`.
 - Criteria → slices coverage, and anything out of scope.
 - Risks: missing tooling, slices close to the size limit.
 
@@ -85,10 +86,10 @@ the user says yes.
 
 ## 5. Create
 
-1. **Epic branch**, unless it exists (`prepare-feature` creates it when it accepts an ADR; reuse it as is):
-   `git fetch origin && git switch -c feature/<epic>-<slug> origin/main && git push -u origin HEAD`, then switch
-   back to where the user was.
-2. **Sub-issues, in topological order** (blockers first), so every blocker has a number when it is referenced:
+1. **Epic branch**, unless it exists (`prepare-feature` creates it; reuse it as is). Create it without checking it
+   out: `git fetch origin && git push origin origin/main:refs/heads/feature/<epic>-<slug>`.
+2. **Sub-issues, in build order** (blockers first), so issue numbers follow the build order and every blocker has a
+   number when it is referenced:
 
    ```bash
    gh issue create --title "<title>" --body-file <tmp>/S<k>.md --parent <epic> [--blocked-by <n>,<n>]
@@ -124,9 +125,9 @@ consumer slice: "Uses the contract from #n" — the request spec / generated typ
 Commands from docs/review.md `verify` for the paths this slice touches.
 
 ## Done when
-PR from `feature/<this>-<slug>` (branched from the epic branch) is merged into `feature/<epic>-<slug>` after
-`pr-loop`. The PR body says `Closes #<this>`: the "Close linked issues" workflow closes this issue on merge into
-the epic branch (GitHub alone only does it for `main`), which makes the slices it blocks ready.
+PR from `feature/<this>-<slug>` (branched from the epic branch) is merged into `feature/<epic>-<slug>` with a merge
+commit after `pr-loop`. The PR body says `Closes #<this>`: the "Close linked issues" workflow closes this issue on
+merge into the epic branch (GitHub alone only does it for `main`), which makes the next slice ready.
 ```
 
 Don't write "blocked by" in the body: the GitHub links are the only source of the order.
@@ -138,10 +139,9 @@ node <skill_dir>/scripts/epic_status.mjs <epic>
 ```
 
 Check: `total` equals the number of planned slices, `cycle` is `null`, every planned link is present in
-`sub_issues[].blocked_by`, `ready` equals the planned first wave. Fix any gap with
+`sub_issues[].blocked_by`, and the lowest number in `ready` is S1. Fix any gap with
 `gh issue edit <n> --add-blocked-by <m>` or `--parent <epic>`.
 
-Report: epic branch, sub-issue list with links, the ready set (what can start now, in parallel), and the next step —
-run `implement-issue` on a ready sub-issue (branch from the epic branch, PR against it), then
-`pr-loop` on its PR. Each sub-issue gets its own worktree, so the ready ones can run in parallel sessions. A human
-merges each PR; after the last one merges, run `close-feature`.
+Report: epic branch, sub-issue list with links in build order, and the next step — `implement-issue <epic> next`
+(it takes the first ready sub-issue, branches from the epic branch, PR against it), then `pr-loop` on its PR. A human
+merges it with a merge commit; then the next one. After the last one merges, run `close-feature`.

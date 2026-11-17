@@ -29,7 +29,7 @@ Precedence: project > stack > core. The project guide's severities and "don't fl
 ## Prerequisites
 
 - `gh` authenticated with write access; Node ≥ 20 for the scripts
-- Run from inside the repository checkout (a worktree on the PR branch is ideal)
+- Run from inside the repository checkout, on the PR branch
 
 `<skill_dir>` below is this skill's directory. Use `${TMPDIR:-/tmp}/pr-<n>/` for working files (`<tmp>` below).
 

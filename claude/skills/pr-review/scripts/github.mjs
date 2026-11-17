@@ -72,7 +72,7 @@ const PR_QUERY = `
             path
             line
             originalLine
-            comments(first: 50) { nodes { databaseId body author { login } createdAt } }
+            comments(first: 50) { nodes { databaseId body url author { login } createdAt } }
           }
         }
       }
@@ -107,11 +107,16 @@ export const buildReviewMarker = (attrs) =>
     .map(([k, v]) => `${k}=${v}`)
     .join(' ')} -->`;
 
-// Reads the latest review round from the review markers of a PR.
-export function lastReviewMarker(pull) {
-  const markers = pull.reviews.nodes.map((r) => parseReviewMarker(r.body)).filter(Boolean);
-  return markers.reduce((best, m) => (!best || Number(m.round) > Number(best.round) ? m : best), null);
+// All review markers of a PR, oldest round first.
+export function reviewMarkers(pull) {
+  return pull.reviews.nodes
+    .map((r) => parseReviewMarker(r.body))
+    .filter(Boolean)
+    .sort((a, b) => Number(a.round) - Number(b.round));
 }
+
+// Reads the latest review round from the review markers of a PR.
+export const lastReviewMarker = (pull) => reviewMarkers(pull).at(-1) ?? null;
 
 // Comment header: `**[blocking · cross-cutting] · security** — title`
 export const severityOf = (body) => String(body ?? '').match(/\*\*\[(blocking|should-fix|nit)\b/)?.[1] ?? null;

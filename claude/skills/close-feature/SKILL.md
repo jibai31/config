@@ -1,6 +1,6 @@
 ---
 name: close-feature
-description: Close an epic whose sub-issues are all merged into the epic branch — check the epic's acceptance criteria end to end, check its ADRs still match the code, promote lasting lessons from the sub-PRs into the project's rules and CLAUDE.md, turn recurring review findings into lint rules, then open the epic PR into main. With --merged, after a human merged the epic PR, mark its ADRs as shipped, tick the roadmap and clean up branches and worktrees. This is where knowledge from many sub-PRs gets consolidated. Use whenever the user asks to close, finish, wrap up or ship an epic / feature, "all sub-issues of #42 are merged, what now", or "the epic PR is merged, clean up". Do NOT use it on a single sub-issue PR (pr-loop) or before the epic is fully implemented.
+description: Close an epic whose sub-issues are all merged into the epic branch — check the epic's acceptance criteria end to end, check its ADRs still match the code, promote lasting lessons from the sub-PRs into the project's rules and CLAUDE.md, turn recurring review findings into lint rules, then open the epic PR into main. With --merged, after a human merged the epic PR, mark its ADRs as shipped, tick the roadmap and clean up branches. This is where knowledge from many sub-PRs gets consolidated. Use whenever the user asks to close, finish, wrap up or ship an epic / feature, "all sub-issues of #42 are merged, what now", or "the epic PR is merged, clean up". Do NOT use it on a single sub-issue PR (pr-loop) or before the epic is fully implemented.
 ---
 
 # Close Feature
@@ -16,8 +16,10 @@ Two modes:
 
 `<split_dir>` = the `split-feature` skill directory, `<retro_dir>` = the `pr-review-retro` skill directory
 (siblings of this one). Project-specific commands come from the `docs/review.md` front matter (`full_verify`,
-`contracts_check`, `run_app`, `lint_rules`, `worktree_setup`); a missing or empty key means the project has no such
-step.
+`contracts_check`, `run_app`, `lint_rules`); a missing or empty key means the project has no such step.
+
+This is the only place the review retro runs inside the epic workflow (`pr-loop` doesn't): step 4 runs it once over
+every PR merged into the epic branch.
 
 ## 1. Everything merged?
 
@@ -33,13 +35,13 @@ The epic branch name is in each sub-issue body ("epic branch `…`").
   (`gh issue close <n> --reason completed`).
 - A sub-issue open with no merged PR, or a PR into the epic branch still open: **stop**. Report what is left
   (`ready` / `blocked` from the script). The epic is not done.
-- Sub-issue worktrees (`git worktree list`, under `.claude/worktrees/`) whose branch's PR is merged: list them and,
-  on the user's yes, remove them (`git worktree remove <path>`, then `git branch -d <branch>`). Never remove one with
-  uncommitted changes or unpushed commits: report it instead.
+- A PR into the epic branch merged by squash or rebase instead of a merge commit (its `mergeCommit` has one parent:
+  `git rev-list --parents -n1 <sha>`): note it — the loop's commits are lost for the retro; its review threads are
+  not.
 
-Work from here in a worktree of the epic branch: `<wt>` = `.claude/worktrees/<epic>-<slug>` (reuse it if
-`git worktree list` shows one, else `git worktree add <wt> feature/<epic>-<slug>` after `git fetch origin`; run the
-`worktree_setup` commands for both stacks). Its tree must be clean. Every command below runs in `<wt>`.
+Work from here on the epic branch, in the user's checkout. It must be clean (`git status --porcelain`); if not, stop
+and ask. `git fetch origin && git switch feature/<epic>-<slug> && git pull --ff-only`, then install dependencies and
+migrate if lockfiles or migrations changed (commands in `CLAUDE.md`).
 
 - The epic branch behind `main`: propose merging `main` into it (`git merge origin/main`; no rebase, no
   force-push: the branch is shared), resolve conflicts, run the full suites below.
@@ -75,11 +77,13 @@ was built (the epic body, the sub-PRs' ADR checklist and amendment commits say w
 
 ## 4. Consolidate lessons
 
-Sources: the review threads on every sub-PR, the sub-PR descriptions, Decision Log entries added on the epic branch,
-and anything the ACs check surprised you with.
+Sources: the review threads and commits of every PR merged into the epic branch (sub-issue PRs, the ADR PR, sync
+PRs), their descriptions, Decision Log entries added on the epic branch, and anything the ACs check surprised you
+with. Merge commits keep each PR's loop commits on the branch: `git log --first-parent feature/<epic>-<slug>` lists
+the merges, `git log <merge>^1..<merge>^2` one PR's commits (what the fixer changed, round by round).
 
 ```bash
-node <retro_dir>/scripts/retro_data.mjs <sub-pr> <sub-pr> ... > ${TMPDIR:-/tmp}/close-feature/<epic>/retro.json
+node <retro_dir>/scripts/retro_data.mjs <pr> <pr> ... > ${TMPDIR:-/tmp}/close-feature/<epic>/retro.json
 ```
 
 Then apply the `pr-review-retro` skill's classification and proposal rules to that data (its "Propose changes"
@@ -114,7 +118,10 @@ On the user's yes:
    can drag them in: `gh` can't upload images), and the consolidation changes.
 3. Its size is far above the per-PR guideline by design: every slice was already reviewed. Suggest `pr-loop` scoped
    to the consolidation commit only if it changed code (lint fixes), and a human review of the acceptance table.
-   A human merges; never merge yourself.
+   A human merges it with **rebase and merge** (each sub-issue's commits land on `main` as they are; the epic
+   branch's merge commits are dropped). Never merge yourself. GitHub refuses the rebase if replaying the commits
+   conflicts, typically after a `main` sync merge that resolved conflicts: then say so and let the human choose
+   (resolve on the branch, or a merge commit for this epic).
 
 ## 6. Report
 
@@ -122,8 +129,7 @@ On the user's yes:
 - Acceptance table
 - ADR amendments proposed or applied, and the ADR phases step 7 will mark shipped
 - Lint rules added (with occurrence counts), rules / CLAUDE.md lines added or removed, eval cases added
-- Worktrees removed or kept (why)
-- Next step: once a human merged the epic PR, run `close-feature <epic> --merged`
+- Next step: once a human merged the epic PR (rebase and merge), run `close-feature <epic> --merged`
 
 ## 7. After merge (`--merged`)
 
@@ -131,8 +137,8 @@ On the user's yes:
    `gh pr list --head feature/<epic>-<slug> --base main --state merged --json number,mergeCommit` must return the
    epic PR, and the epic issue must be closed (close it on the user's yes if `Closes #<epic>` missed). If not merged,
    stop.
-2. **Ship the docs**, in a worktree on a new branch from `main`
-   (`git worktree add .claude/worktrees/<epic>-shipped -b chore/<epic>-shipped origin/main`):
+2. **Ship the docs**, on a new branch from `main` in the user's checkout (clean tree;
+   `git fetch origin && git switch -c chore/<epic>-shipped origin/main`):
    - **ADRs**: for each ADR the epic implemented a phase of (noted in step 3), set the status to
      `Phase N Shipped` per `docs/adrs/README.md`. Verify before relabeling: name the module, table or test on `main`
      that implements the phase. Ask the user to confirm N for each ADR.
@@ -142,9 +148,12 @@ On the user's yes:
    - Run the `verify` commands for the files touched, commit (`#<epic>: Mark shipped — ADRs, roadmap`), push, and
      open a PR into `main` with `Refs #<epic>` (the epic is already closed). A human merges.
 3. **Clean up**, on the user's yes after showing the list:
-   - Remote branches whose PRs are merged: the epic branch and every sub-issue branch
-     (`git push origin --delete <branch>`; skip the ones GitHub already deleted).
-   - Local branches (`git branch -d`, never `-D`) and the remaining worktrees of this epic (`git worktree remove`,
-     then `git worktree prune`). Never remove a worktree with uncommitted changes or unpushed commits: report it.
-4. **Report**: ADRs relabeled (with the evidence on `main`), roadmap items ticked, docs PR link, branches and
-   worktrees removed or kept.
+   - Remote branches whose PRs are merged: the epic branch and every branch merged into it (sub-issues, ADR PR,
+     sync PRs) (`git push origin --delete <branch>`; skip the ones already deleted).
+   - Local branches, from an up-to-date `main` (`git switch main && git pull --ff-only`). The rebase gave the
+     commits new SHAs on `main`, so `git branch -d` refuses them: for each branch, confirm with
+     `gh pr list --head <branch> --state merged` that its PR is merged, and that it has no commit newer than its
+     PR's head (`git rev-parse <branch>` equals the PR's `headRefOid`); only then `git branch -D`. Anything else:
+     report it, don't delete.
+4. **Report**: ADRs relabeled (with the evidence on `main`), roadmap items ticked, docs PR link, branches removed or
+   kept.

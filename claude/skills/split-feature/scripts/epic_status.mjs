@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Prints an epic's sub-issues as JSON with their "blocked by" links, which ones are ready to implement (open, every
-// blocker closed), and whether the dependency graph has a cycle. Shared by split-feature (verify the graph it
+// blocker closed as completed), which are stuck behind a blocker closed as not planned, and whether the dependency
+// graph has a cycle. Shared by split-feature (verify the graph it
 // created), close-feature (is everything closed?) and whoever picks the next issue to implement.
 //
 // Usage: node epic_status.mjs EPIC_NUMBER
@@ -40,15 +41,19 @@ runMain(() => {
     const blockedBy = api(`repos/${r}/issues/${s.number}/dependencies/blocked_by?per_page=100`).map((b) => ({
       number: b.number,
       state: b.state,
+      state_reason: b.state_reason ?? null,
       in_epic: false,
     }));
     return { number: s.number, title: s.title, state: s.state, url: s.html_url, blocked_by: blockedBy };
   });
 
+  // A blocker closed as "not planned" never delivered what the slice depends on: it doesn't unblock it.
+  const notPlanned = (b) => b.state === 'closed' && b.state_reason === 'not_planned';
   const inEpic = new Set(subs.map((s) => s.number));
   for (const s of subs) {
     for (const b of s.blocked_by) b.in_epic = inEpic.has(b.number);
-    s.ready = s.state === 'open' && s.blocked_by.every((b) => b.state === 'closed');
+    s.stuck = s.state === 'open' && s.blocked_by.some(notPlanned);
+    s.ready = s.state === 'open' && s.blocked_by.every((b) => b.state === 'closed' && !notPlanned(b));
   }
 
   const open = subs.filter((s) => s.state === 'open');
@@ -60,7 +65,8 @@ runMain(() => {
         open: open.length,
         all_closed: subs.length > 0 && open.length === 0,
         ready: subs.filter((s) => s.ready).map((s) => s.number),
-        blocked: open.filter((s) => !s.ready).map((s) => s.number),
+        blocked: open.filter((s) => !s.ready && !s.stuck).map((s) => s.number),
+        stuck: open.filter((s) => s.stuck).map((s) => s.number),
         cycle: findCycle(subs),
         external_blockers: [
           ...new Set(subs.flatMap((s) => s.blocked_by.filter((b) => !b.in_epic).map((b) => b.number))),

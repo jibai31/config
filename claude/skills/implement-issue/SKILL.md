@@ -1,6 +1,6 @@
 ---
 name: implement-issue
-description: Implement a GitHub issue end to end — check it is ready (open, spec'd, every "blocked by" closed), branch from the right base (the epic branch for a sub-issue, main otherwise) in its own git worktree, read the ADRs, areas and coding rules it touches, write the tests for its acceptance criteria, implement, run the project's verify commands and check visible changes on device, commit, push and open the PR with `Closes #n`. Stops at the PR and hands over to pr-loop. Use whenever the user asks to implement, build, do, work on, pick up or "fix issue 42", or to take the next ready sub-issue of an epic. Do NOT use it to slice an epic (split-feature), to refine a need (grill-me) or write a spec (prepare-feature), to review or fix review comments (pr-review / pr-fix), or for a Sentry error (fix-sentry-issue).
+description: Implement a GitHub issue end to end — check it is ready (open, spec'd, every "blocked by" closed), branch from the right base (the epic branch for a sub-issue, main otherwise; sub-issues one at a time), read the ADRs, areas and coding rules it touches, write the tests for its acceptance criteria, implement, run the project's verify commands and check visible changes on device, commit, push and open the PR with `Closes #n`. Stops at the PR and hands over to pr-loop. Use whenever the user asks to implement, build, do, work on, pick up or "fix issue 42", or to take the next ready sub-issue of an epic. Do NOT use it to slice an epic (split-feature), to refine a need (grill-me) or write a spec (prepare-feature), to review or fix review comments (pr-review / pr-fix), or for a Sentry error (fix-sentry-issue).
 ---
 
 # Implement Issue
@@ -8,17 +8,20 @@ description: Implement a GitHub issue end to end — check it is ready (open, sp
 Input: an issue number or URL, or an epic number with "next" (pick a ready sub-issue). Output: a pushed branch and
 an open PR that closes the issue, ready for `pr-loop`.
 
-Pipeline this skill sits in: `grill-me` → `prepare-feature` → `split-feature` → **implement-issue** (per ready
-sub-issue) → `pr-loop` → merge into the epic branch → … → `close-feature`. A standalone issue (no epic) goes
-straight to `main`.
+Pipeline this skill sits in: `grill-me` → `prepare-feature` → `split-feature` → **implement-issue** (per
+sub-issue, one at a time) → `pr-loop` → merge into the epic branch → next sub-issue → … → `close-feature`. A
+standalone issue (no epic) goes straight to `main`.
+
+Sub-issues of an epic are implemented **sequentially**, in the user's own checkout: the next one starts only once the
+previous one's PR is merged into the epic branch, and branches from it, so each builds on the last.
 
 The issue body is the spec. You implement it; you don't redesign it. When the spec is wrong or incomplete, stop and
 say so rather than fill the gap yourself. On a sub-issue, the route back is: `grill-me` on the gap → `prepare-feature`
 on the epic (amend its body, and its ADRs if needed) → `split-feature` in re-plan mode (amend or add sub-issues) →
 `implement-issue` again.
 
-Project-specific commands come from the `docs/review.md` front matter (`verify`, `generate`, `worktree_setup`,
-`run_app`); a key that is missing means the project has no such step.
+Project-specific commands come from the `docs/review.md` front matter (`verify`, `generate`, `run_app`); a key that
+is missing means the project has no such step.
 
 ## 1. Check the issue
 
@@ -27,43 +30,40 @@ gh issue view <n> --json number,title,body,state,labels,parent,subIssues
 gh api "repos/{owner}/{repo}/issues/<n>/dependencies/blocked_by" --jq '.[] | {number, state, title}'
 ```
 
-Given an epic and "next": run `node <split_feature_dir>/scripts/epic_status.mjs <epic>` and take one issue from
-`ready` (lowest number, unless the user says otherwise). `<split_feature_dir>` is the `split-feature` skill
-directory, a sibling of this one.
+Given an epic and "next": run `node <split_feature_dir>/scripts/epic_status.mjs <epic>` and take the lowest number
+in `ready` (sub-issues are numbered in build order), unless the user names another. `<split_feature_dir>` is the
+`split-feature` skill directory, a sibling of this one. `ready` empty with `stuck` non-empty: a blocker was closed as
+not planned; stop and point to `split-feature` re-plan.
 
 Stop and say why if:
 
 - The issue is closed, or a PR already closes it (`gh pr list --search "<n> in:body" --state all`).
+- It is a sub-issue and another PR into the epic branch is still open
+  (`gh pr list --base <epic branch> --state open`): sub-issues go one at a time. Name that PR; it must be merged
+  first. A PR for this same issue (resumed work) is the exception.
 - It has sub-issues: it is an epic. Point to its ready sub-issues, or to `split-feature` if it has none.
 - A "blocked by" issue is still open. Name it, and the ready ones if this is a sub-issue.
 - There are no testable acceptance criteria, or an open question changes what to build. Suggest the route above.
 
-## 2. Branch, in its own worktree
+## 2. Branch
 
-Each issue gets its own git worktree, so several sub-issues of an epic can be implemented and run through `pr-loop`
-in parallel without switching branches under each other. The user's checkout is never touched.
+Work in the user's checkout. It must be clean (`git status --porcelain` empty); if not, stop and ask.
 
-- **Base**: the issue's `parent` is an epic → its branch `feature/<epic>-<slug>` (find it with
-  `git ls-remote --heads origin "feature/<epic>-*"`; if it doesn't exist, stop: `split-feature` creates it).
+- **Base**: the issue's `parent` is an epic → its branch, named in the sub-issue body ("epic branch `…`"; else
+  `git ls-remote --heads origin "feature/<epic>-*"`). If it doesn't exist, stop: `prepare-feature` creates it.
   No parent → `main`.
 - **Name**: `bugfix/<n>-<slug>` for a `bug` label, else `feature/<n>-<slug>` (project git workflow). Slug: 2–5
   kebab-case words from the title.
-- **Worktree**: `<wt>` = `<repo root>/.claude/worktrees/<n>-<slug>` (the directory is git-ignored).
 
   ```bash
   git fetch origin
-  git worktree add <wt> -b <branch> origin/<base>
+  git switch -c <branch> origin/<base>
   ```
 
-  If the branch exists already (resumed work): reuse its worktree if `git worktree list` shows one, else
-  `git worktree add <wt> <branch>`; rebase onto `origin/<base>` and read its commits before going on. Its tree must
-  be clean (`git -C <wt> status --porcelain`); if not, stop and ask.
-- **From here on, work only inside `<wt>`**: run every command with `<wt>` as working directory and edit files under
-  `<wt>`, never the main checkout.
-- **Setup**: run the `worktree_setup` commands from `docs/review.md` for the stacks the issue touches (dependencies
-  are per worktree).
-- **Shared resources**: worktrees share the test database, the simulator and Metro's port. Never run the backend
-  suite or the app in two worktrees at once; if another one is running, wait for it.
+  If the branch exists already (resumed work): `git switch <branch>`, merge `origin/<base>` into it if it moved
+  (no rebase once pushed), and read its commits before going on.
+- **Dependencies**: if the switch changed a lockfile (`Gemfile.lock`, `package-lock.json`) or a migration, install
+  and migrate with the commands in `CLAUDE.md` before running anything.
 
 ### Epic branch behind `main`
 
@@ -75,10 +75,10 @@ git diff --name-only origin/<base>...origin/main
 ```
 
 If `main` has commits the epic branch lacks **and** any of them touch files this issue will edit, or the count is
-over 20, tell the user and propose a sync PR before going on: branch `chore/<epic>-sync-main` from the epic branch
-(in its own worktree), `git merge origin/main` (never rebase: the epic branch is shared), resolve conflicts, run the
-`verify` commands, open a PR into the epic branch. Do it only on the user's yes; otherwise go on and mention the
-drift in the PR.
+over 20, tell the user and propose a sync PR before going on: branch `chore/<epic>-sync-main` from the epic branch,
+`git merge origin/main` (never rebase: the epic branch is shared), resolve conflicts, run the `verify` commands, open
+a PR into the epic branch, run `pr-loop` on it; a human merges it (merge commit), then start this issue from the
+updated epic branch. Do it only on the user's yes; otherwise go on and mention the drift in the PR.
 
 ## 3. Read before coding
 
@@ -146,7 +146,7 @@ against it. Fix what you find.
 ### On device
 
 If the diff touches a path matched by a `run_app` entry in `docs/review.md` and changes what the user sees or does
-(a screen, a flow, copy, a gesture, offline behaviour), run the entry's skill (e.g. `run-mobile`) from `<wt>` and
+(a screen, a flow, copy, a gesture, offline behaviour), run the entry's skill (e.g. `run-mobile`) and
 walk each acceptance criterion that is visible on screen, on every platform the skill supports. Save the screenshots in
 the scratchpad. Pure logic with no visible effect: skip, and say so in the PR.
 
@@ -172,10 +172,11 @@ Never push to `main` or the epic branch directly, never force-push, never merge:
 
 Don't review your own PR in this context: the reviewer must start fresh. Report:
 
-- Issue, branch, base, PR link, worktree path `<wt>`
+- Issue, branch, base, PR link
 - Criteria → tests, verify results (actual counts)
 - On-device check: platforms, result, screenshot paths (or why skipped)
 - Decisions made, anything left out of scope, risks, epic branch drift
-- Next step: run `pr-loop` on the PR (it works in `<wt>`). When it reports ready, a human reviews and merges. On an
-  epic branch, the merge closes the issue and the issues it blocked become ready (`epic_status.mjs`); once the epic
-  has no open sub-issue, run `close-feature`. Keep `<wt>` until the PR is merged: `close-feature` removes it.
+- Next step: run `pr-loop` on the PR (stay on this branch). When it reports ready, a human reviews and merges it
+  with a **merge commit** (no squash, no rebase: the loop's commits are kept for retros and evals). On an epic
+  branch, the merge closes the issue and the next sub-issue becomes ready: `implement-issue <epic> next`. Once the
+  epic has no open sub-issue, run `close-feature`.

@@ -8,15 +8,23 @@ import {
   COMMENT_MARKER,
   FIX_MARKER,
   fetchPullRequest,
-  lastReviewMarker,
   prNumberFromArgs,
   repo,
+  reviewMarkers,
   runMain,
   scopeOf,
   severityOf,
 } from '../../pr-review/scripts/github.mjs';
 
-const NON_CONVERGING_AFTER_ROUNDS = 2;
+const openCount = (marker) => Number(marker.blocking ?? 0) + Number(marker.should_fix ?? 0);
+
+// Not converging: the last review round left at least as many blocking + should-fix threads open as the one before.
+function convergence(markers) {
+  const [previous, last] = markers.slice(-2);
+  if (!previous || !last) return null;
+  const [before, after] = [openCount(previous), openCount(last)];
+  return { previous_open: before, last_open: after, converging: after < before };
+}
 
 function serialize(thread) {
   const comments = thread.comments.nodes;
@@ -32,6 +40,7 @@ function serialize(thread) {
     severity: aiReview ? severityOf(first.body) : null,
     scope: aiReview ? scopeOf(first.body) : null,
     needs_answer: !comments.at(-1).body.includes(FIX_MARKER),
+    url: first.url,
     comments: comments.map((c) => ({
       author: c.author?.login,
       body: c.body.replace(COMMENT_MARKER, '').trim(),
@@ -40,13 +49,16 @@ function serialize(thread) {
   };
 }
 
-// Severity alone doesn't size a change: a blocking comment can be a one-liner. Route on both.
-function recommendFixer(toAnswer, reviewRounds) {
+// Severity alone doesn't size a change: a blocking comment can be a one-liner. Route on severity, scope and
+// convergence.
+function recommendFixer(toAnswer, conv) {
   if (!toAnswer.length) return null;
   const reasons = [];
   if (toAnswer.some((t) => t.severity === 'blocking')) reasons.push('blocking comment');
   if (toAnswer.some((t) => t.scope === 'cross-cutting')) reasons.push('cross-cutting comment');
-  if (reviewRounds >= NON_CONVERGING_AFTER_ROUNDS) reasons.push(`not converging after ${reviewRounds} rounds`);
+  if (conv && !conv.converging) {
+    reasons.push(`not converging (${conv.previous_open} → ${conv.last_open} blocking + should-fix open)`);
+  }
   return reasons.length
     ? { model: 'opus', effort: 'high', reasons }
     : { model: 'sonnet', effort: 'medium', reasons: ['only local should-fix / nit / human comments'] };
@@ -57,7 +69,8 @@ runMain(() => {
   const { pull, threads } = fetchPullRequest(number);
   const openThreads = threads.filter((t) => !t.isResolved && t.comments.nodes.length).map(serialize);
   const toAnswer = openThreads.filter((t) => t.needs_answer);
-  const reviewRounds = Number(lastReviewMarker(pull)?.round ?? 0);
+  const markers = reviewMarkers(pull);
+  const conv = convergence(markers);
 
   console.log(
     JSON.stringify(
@@ -67,10 +80,21 @@ runMain(() => {
         title: pull.title,
         head_ref: pull.headRefName,
         head_sha: pull.headRefOid,
-        review_rounds: reviewRounds,
+        review_rounds: Number(markers.at(-1)?.round ?? 0),
+        convergence: conv,
         to_answer_count: toAnswer.length,
         has_cross_cutting: toAnswer.some((t) => t.scope === 'cross-cutting'),
-        recommended_fixer: recommendFixer(toAnswer, reviewRounds),
+        recommended_fixer: recommendFixer(toAnswer, conv),
+        // Unresolved threads a human opened: pr-loop reports them, since they don't hold the AI loop.
+        human_threads: openThreads
+          .filter((t) => t.source === 'human')
+          .map((t) => ({
+            path: t.path,
+            line: t.line,
+            author: t.comments[0]?.author,
+            needs_answer: t.needs_answer,
+            url: t.url,
+          })),
         open_threads: openThreads,
       },
       null,
