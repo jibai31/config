@@ -26,7 +26,8 @@ Stop and say why if the issue is closed, or is itself a sub-issue (`parent` set)
 that changing the spec may need a `split-feature` re-plan, and go on only on the user's yes.
 
 Then read the project's ADR rules and index (`docs/adrs/README.md`), the architecture overview, the ADRs and code
-the feature touches, and the roadmap (what it schedules later is out of scope).
+the feature touches, and the roadmap if the project has one (what it schedules later is out of scope). Find the
+overview and the roadmap from `CLAUDE.md` or the ADR index.
 
 Find the decisions, in this order:
 
@@ -49,14 +50,14 @@ Who it is for and what changes for them.
 - Out: … (later milestones stay in the roadmap)
 
 ## Behaviour
-User flows and edge cases (offline, errors, empty states), as concrete as needed to test them.
+User flows and edge cases (errors, empty states, …), as concrete as needed to test them.
 
 ## API changes
-Endpoints added/changed, request/response shape in outline, compatibility with app versions in the stores. "None"
+Endpoints added/changed, request/response shape in outline, compatibility with clients already deployed. "None"
 if none.
 
 ## Data model changes
-Tables/columns on the server and device, synced or not, closed-enum values touched. "None" if none.
+Tables/columns, indexes and enum values touched, in every data store the project has. "None" if none.
 
 ## Acceptance criteria
 - [ ] Testable, end-to-end statements: what `close-feature` will check
@@ -74,7 +75,7 @@ Link ADRs, never restate their rules.
 ## 3. Readiness check
 
 The epic is ready when every section above is filled from a decision (not from your guess) and no open question
-would change how the work is sliced: scope, API shape, data model, offline/sync behaviour, user-visible copy.
+would change how the work is sliced: scope, API shape, data model, user-visible behaviour.
 
 If not, **stop**: list each gap (section + the question to settle) and tell the user to run `grill-me` on them, then
 rerun this skill. Don't fill gaps yourself and don't grill here: keeping the interview in `grill-me` is the point of
@@ -87,13 +88,23 @@ Show the final body. If the original body had content the new one drops, say wha
 
 ## 5. Epic branch
 
-Create `feature/<n>-<slug>` (slug: 2–5 kebab-case words from the title) from `origin/main` if it doesn't exist,
-without checking it out:
+`<default>` = the default branch (`gh repo view --json defaultBranchRef -q .defaultBranchRef.name`).
+
+Create `feature/<n>-<slug>` (slug: 2–5 kebab-case words from the title) from `origin/<default>` if it doesn't
+exist, without checking it out:
 
 ```bash
 git fetch origin
-git push origin origin/main:refs/heads/feature/<n>-<slug>
+git push origin origin/<default>:refs/heads/feature/<n>-<slug>
 ```
+
+Sub-issue PRs merge into the epic branch, where GitHub doesn't close the issues they reference: the "Close linked
+issues" workflow does. It must be on `<default>` (`pull_request_target` runs from there). If
+`git ls-tree origin/<default> .github/workflows/close-linked-issues.yml` prints nothing, offer to add it: copy
+`<split_feature_dir>/assets/close-linked-issues.yml` (`<split_feature_dir>` = the `split-feature` skill directory, a
+sibling of this one) to `.github/workflows/` in a standalone PR into `<default>` (branch per the project's git
+workflow), run `pr-loop` on it, and a human merges it. On a no, each sub-issue must be closed by hand after its PR
+merges (`gh issue close <n> --reason completed`): say so in the report.
 
 Every PR of the epic (this one, then each sub-issue's) targets it. `split-feature` reuses it.
 
@@ -119,7 +130,8 @@ like any other change: nothing is pushed to the epic branch directly.
 4. Draft the ADRs from the agreed spec with the project's template, set each accepted one to `Accepted` with the
    date, update the ADR index and the docs that link them. Run the `verify` commands from `docs/review.md` for the
    files touched.
-5. Commit (`#<n>: Accept ADR-NNNN …`, per the project's commit format, with the attribution trailer), push
+5. Commit (per the project's commit format — `commit` in the `docs/review.md` front matter, else `CLAUDE.md` —
+   e.g. `#<n>: Accept ADR-NNNN …`, with the attribution trailer), push
    (`git push -u origin HEAD`), and open the PR into the epic branch:
    `gh pr create --base feature/<n>-<slug> --title "#<n>: Accept ADRs for <epic title>"`. The body fills the project's
    PR template, but its first line is `Refs #<n>`, **never** `Closes #<n>`: the "Close linked issues" workflow would
@@ -134,6 +146,7 @@ Then update the issue body's "Related ADRs": each accepted one shows as Accepted
 ## 7. Report
 
 - Issue link; body updated or not (and what was dropped)
-- Epic branch; ADRs drafted, accepted, left Proposed; ADR PR link and `pr-loop` final state
+- Epic branch; "Close linked issues" workflow present, PR opened, or declined (sub-issues closed by hand)
+- ADRs drafted, accepted, left Proposed; ADR PR link and `pr-loop` final state
 - Gaps sent back to `grill-me`, if any
 - Next step: once the ADR PR is merged into the epic branch (or there was none), `split-feature <n>`

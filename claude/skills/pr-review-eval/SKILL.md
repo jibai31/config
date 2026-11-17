@@ -19,6 +19,13 @@ checklists, or a project's `docs/review.md`, and compare with the last run.
 Run the generic set plus the project set when one exists. History of aggregate scores: `<skill_dir>/history.jsonl`
 for generic runs, `<repo>/.claude/review-evals/history.jsonl` for project runs.
 
+A project set may have `<repo>/.claude/review-evals/config.json` with `{ "guide_paths": [...] }` (e.g. `CLAUDE.md`,
+`docs/review.md`, `.claude/rules`): `prepare_case.mjs` copies those paths from the repo's working tree (uncommitted
+edits included) over each case's `base_ref`, in a "Project guide" commit that becomes the reviewed base. Cases pinned
+to old commits are then reviewed against today's rules, and editing a rule then re-running measures the edit. A case
+opts out with `"guide_overlay": false`. `.claude/review-evals` is always removed from the worktree, and the repo's git
+hooks never run on eval worktrees.
+
 ## Case format
 
 ```text
@@ -36,13 +43,18 @@ for generic runs, `<repo>/.claude/review-evals/history.jsonl` for project runs.
   scoped, index exists elsewhere, a project convention).
 - `acceptable[]`: `{ id, path, anchor, keywords?, note }` — real issues the case didn't plant but a good reviewer
   may raise (missing test, i18n…). Neither rewarded nor penalized, so they don't count as noise.
+- `alternatives` (any item): `[{ path, anchor, anchor_end?, span? }]` — other places where the same issue can as
+  validly be reported (a bug at the call or in the callee, a missing test on the code or on the spec). A finding at
+  any location matches.
 - `keywords` (any of the three lists): case-insensitive regex the finding's title + body must match. Use it whenever
   several issues can land on the same lines, or a trap line also carries a real issue: matching is by line range,
   and without keywords a valid finding can satisfy the wrong expectation or hit a trap.
 - Trap lines must be free of any other real issue (the baseline run hit three traps with valid findings: an
   incomplete accessibility label, a schema not updated, hardcoded copy). Planted problems that share one fix are one
   expectation, not two.
-- Keep cases small (≤ 150 changed lines), with 1–4 planted problems and at least one trap. Include a clean case
+- Keep cases small (≤ 150 changed lines), with 1–4 planted problems and at least one trap. Exception: replays of
+  real PRs whose bug surfaced later, kept at full size to measure recall on a big diff (mostly `required: false`,
+  long `acceptable` lists). Include a clean case
   (no expected findings) in every set: it measures noise.
 - **Never** put hints in the code (`// BUG`), file names or commit message.
 
@@ -93,4 +105,4 @@ change. Don't change the reviewer in the same step: propose, then re-run after t
 From a retro miss or a recurring false positive (`pr-review-retro`): reproduce the smallest change that shows it,
 as a generic fixture when it is stack-level, or a project case (`base_ref` = the commit before the PR) when it
 depends on project rules. Prepare it once and check every anchor resolves (`score.mjs` fails loudly when one
-doesn't) before running the reviewer.
+doesn't) before running the reviewer; a project set may ship a `check_cases.sh` that does both for every case.

@@ -16,7 +16,8 @@
 // `keywords` (expected / must_not_flag / acceptable): case-insensitive regex the finding's title + body must match.
 // `anchor` is a regex matched against the file at the reviewed commit; the expected range is the matching line
 // (through `anchor_end` if given) widened by `span` lines (default 3). `required` defaults to true when severity is
-// blocking. A finding matches an expectation when it is on the same path and its line range overlaps.
+// blocking. A finding matches an expectation when it is on the same path and its line range overlaps, at the item's
+// own location or at one of its `alternatives` ([{ path, anchor, anchor_end?, span? }]).
 
 import { appendFileSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -54,10 +55,20 @@ function resolveRange(workdir, item) {
 
 const overlaps = (f, path, [lo, hi]) => f.path === path && (f.start_line ?? f.line) <= hi && f.line >= lo;
 
+// An item's locations: its own, plus `alternatives` ([{ path, anchor, anchor_end?, span? }]) where the same issue
+// can as validly be anchored (e.g. a missing test on the code or on the spec, a bug at the call or at the callee).
+const withLocations = (workdir, item) => ({
+  ...item,
+  locations: [item, ...(item.alternatives ?? [])].map((loc) => ({
+    path: loc.path,
+    range: resolveRange(workdir, { id: item.id, ...loc }),
+  })),
+});
+
 function scoreRun(spec, workdir, findings) {
-  const expected = (spec.expected ?? []).map((e) => ({ ...e, range: resolveRange(workdir, e) }));
-  const mustNot = (spec.must_not_flag ?? []).map((m) => ({ ...m, range: resolveRange(workdir, m) }));
-  const accept = (spec.acceptable ?? []).map((a) => ({ ...a, range: resolveRange(workdir, a) }));
+  const expected = (spec.expected ?? []).map((e) => withLocations(workdir, e));
+  const mustNot = (spec.must_not_flag ?? []).map((m) => withLocations(workdir, m));
+  const accept = (spec.acceptable ?? []).map((a) => withLocations(workdir, a));
   const used = new Set();
   const matched = [];
   const missed = [];
@@ -66,7 +77,9 @@ function scoreRun(spec, workdir, findings) {
   // case-insensitive regex on title + body) disambiguates: those expectations match first, and only findings whose
   // text matches them.
   const text = (f) => `${f.title ?? ''} ${f.body ?? ''}`;
-  const fits = (f, item) => overlaps(f, item.path, item.range) && (!item.keywords || new RegExp(item.keywords, 'i').test(text(f)));
+  const fits = (f, item) =>
+    item.locations.some((loc) => overlaps(f, loc.path, loc.range)) &&
+    (!item.keywords || new RegExp(item.keywords, 'i').test(text(f)));
   const ordered = [...expected].sort((a, b) => Number(!a.keywords) - Number(!b.keywords));
 
   for (const e of ordered) {

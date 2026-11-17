@@ -30,24 +30,31 @@ Stop and say why if:
 
 The body is the spec (not the comments). Note its acceptance criteria and its related ADRs.
 
+`<default>` = the default branch (`gh repo view --json defaultBranchRef -q .defaultBranchRef.name`). Check the "Close
+linked issues" workflow is on it (`git ls-tree origin/<default> .github/workflows/close-linked-issues.yml`). If not,
+warn: sub-issues won't close when their PR merges into the epic branch, so the next one never becomes ready. Point to
+`<skill_dir>/assets/close-linked-issues.yml` (`prepare-feature` offers to add it); if the user goes on without it,
+say each sub-issue must be closed by hand after its merge.
+
 ## 2. Read before slicing
 
 - Every ADR the epic links, and its status **on the epic branch** if it exists (`prepare-feature` accepts ADRs there
-  through a PR, before `main` has them). If the epic relies on an ADR that is still **Proposed** there, stop: the
-  reviewer flags code that implements a Proposed ADR. If `prepare-feature`'s ADR PR (`docs/<epic>-adrs`) is still
-  open, say it must be merged first; otherwise send the user back to `prepare-feature`.
+  through a PR, before the default branch has them). If the epic relies on an ADR that is still **Proposed** there,
+  stop: the reviewer flags code that implements a Proposed ADR. If `prepare-feature`'s ADR PR (`docs/<epic>-adrs`) is
+  still open, say it must be merged first; otherwise send the user back to `prepare-feature`.
 - The project's ADR rules (`docs/adrs/README.md`), architecture overview, and `docs/review.md`: its `areas` map tells
   you which areas, docs and `.claude/rules/` files each slice will touch.
 - The code the epic touches (explore it; don't ask what the codebase answers). Check whether the contract tooling
-  exists yet (`docs/review.md` front matter: a `generate` entry for request specs and a non-empty
-  `contracts_check`); if not, the contract slice is the request spec plus the endpoint.
-- The roadmap: anything it schedules later is out of scope for every slice.
+  exists yet (`docs/review.md` front matter: a `generate` entry for the contract tests and a non-empty
+  `contracts_check`); if not, the contract slice is the contract tests plus the endpoint.
+- The roadmap, if the project has one: anything it schedules later is out of scope for every slice.
 
 ## 3. Design the slices
 
 Each slice is one PR into the epic branch that CI passes on its own and leaves the epic branch working:
 
-- **Small.** Under ~500 changed lines (the project's PR guideline), one concern, one reviewer pass. Split bigger.
+- **Small.** Within the project's PR size guideline (`CLAUDE.md`; ~500 changed lines if none), one concern, one
+  reviewer pass. Split bigger.
 - **Independently mergeable.** No half-built code that only compiles with a later slice. A feature flag or an
   unreachable screen is fine; a broken build or a failing test is not.
 - **Testable.** Each slice has its own acceptance criteria and the tests that prove them.
@@ -56,12 +63,11 @@ Ordering — slices run one at a time in issue-number order, so create them in t
 "blocked by" link for each real dependency too: it keeps a re-plan or a manual pick from starting a slice too early.
 
 1. **Contract before consumer.** A slice that changes the API (endpoint, request/response shape, auth) lands the
-   contract first — request specs and the endpoint, plus the regenerated contract files when the tooling exists
+   contract first — contract tests and the endpoint, plus the regenerated contract files when the tooling exists
    (`generate`). The client slice that calls it is blocked by that contract slice. One contract slice per endpoint
    group.
-2. **Schema before use.** Server migrations/models before the endpoints that use them; client (on-device) schema and
-   migration before the client features that read them. A synced table needs both sides; follow the project's sync
-   ADR, if any, for the order.
+2. **Schema before use.** Migrations/models before the code that reads them, on every side that stores data
+   (server, client). When data spans several stores, follow the project's ADRs for the order.
 3. **Docs travel with the code.** Each slice updates the docs its change affects. ADRs are already accepted
    (`prepare-feature`); a slice that finds it must diverge from one amends it in its own PR, with the user's approval.
 4. No slice for "tests" or "docs" alone, and no final "integration" slice: `close-feature` checks the epic end to
@@ -74,7 +80,7 @@ a prerequisite of one. Anything left over is out of scope — say so rather than
 
 Show, before creating anything:
 
-- Epic branch: `feature/<epic>-<slug>` (normally created by `prepare-feature`; from `main` otherwise).
+- Epic branch: `feature/<epic>-<slug>` (normally created by `prepare-feature`; from `<default>` otherwise).
 - A table, in build order: local id (S1, S2…), title, stack (a `stacks` entry from `docs/review.md`, contracts, or
   docs), blocked by (local ids), epic criteria covered, rough size.
 - The dependency graph as a Mermaid `graph LR`.
@@ -87,7 +93,7 @@ the user says yes.
 ## 5. Create
 
 1. **Epic branch**, unless it exists (`prepare-feature` creates it; reuse it as is). Create it without checking it
-   out: `git fetch origin && git push origin origin/main:refs/heads/feature/<epic>-<slug>`.
+   out: `git fetch origin && git push origin origin/<default>:refs/heads/feature/<epic>-<slug>`.
 2. **Sub-issues, in build order** (blockers first), so issue numbers follow the build order and every blocker has a
    number when it is referenced:
 
@@ -112,7 +118,7 @@ One or two sentences: what this slice delivers and why.
 
 ## Contract
 <Only for slices that change or consume the API.> Endpoint, method, request/response shape in outline. For a
-consumer slice: "Uses the contract from #n" — the request spec / generated types are the source of truth.
+consumer slice: "Uses the contract from #n" — the contract tests / generated contract files are the source of truth.
 
 ## Read first
 - ADRs: the subset that governs this slice, linked (not the epic's whole list)
@@ -127,7 +133,7 @@ Commands from docs/review.md `verify` for the paths this slice touches.
 ## Done when
 PR from `feature/<this>-<slug>` (branched from the epic branch) is merged into `feature/<epic>-<slug>` with a merge
 commit after `pr-loop`. The PR body says `Closes #<this>`: the "Close linked issues" workflow closes this issue on
-merge into the epic branch (GitHub alone only does it for `main`), which makes the next slice ready.
+merge into the epic branch (GitHub alone only does it for the default branch), which makes the next slice ready.
 ```
 
 Don't write "blocked by" in the body: the GitHub links are the only source of the order.

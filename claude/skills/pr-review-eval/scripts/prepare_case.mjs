@@ -13,7 +13,9 @@ import { execFileSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8' }).trim();
+// Hooks off: the repository's own hooks (overcommit, linters) must not run on eval worktrees and fixture commits.
+const git = (cwd, ...args) =>
+  execFileSync('git', ['-c', 'core.hooksPath=/dev/null', ...args], { cwd, encoding: 'utf8' }).trim();
 
 // Project cases pin an old commit (base_ref), whose review guide and coding rules are not the ones under test. When
 // the case set has a config.json next to its cases/ folder ({ "guide_paths": [...] }), those paths are copied from

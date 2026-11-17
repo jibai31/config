@@ -1,6 +1,6 @@
 ---
 name: implement-issue
-description: Implement a GitHub issue end to end — check it is ready (open, spec'd, every "blocked by" closed), branch from the right base (the epic branch for a sub-issue, main otherwise; sub-issues one at a time), read the ADRs, areas and coding rules it touches, write the tests for its acceptance criteria, implement, run the project's verify commands and check visible changes on device, commit, push and open the PR with `Closes #n`. Stops at the PR and hands over to pr-loop. Use whenever the user asks to implement, build, do, work on, pick up or "fix issue 42", or to take the next ready sub-issue of an epic. Do NOT use it to slice an epic (split-feature), to refine a need (grill-me) or write a spec (prepare-feature), to review or fix review comments (pr-review / pr-fix), or for a Sentry error (fix-sentry-issue).
+description: Implement a GitHub issue end to end — check it is ready (open, spec'd, every "blocked by" closed), branch from the right base (the epic branch for a sub-issue, the default branch otherwise; sub-issues one at a time), read the ADRs, areas and coding rules it touches, write the tests for its acceptance criteria, implement, run the project's verify commands and check visible changes in the running app, commit, push and open the PR with `Closes #n`. Stops at the PR and hands over to pr-loop. Use whenever the user asks to implement, build, do, work on, pick up or "fix issue 42", or to take the next ready sub-issue of an epic. Do NOT use it to slice an epic (split-feature), to refine a need (grill-me) or write a spec (prepare-feature), to review or fix review comments (pr-review / pr-fix), or for a Sentry error (fix-sentry-issue).
 ---
 
 # Implement Issue
@@ -10,7 +10,7 @@ an open PR that closes the issue, ready for `pr-loop`.
 
 Pipeline this skill sits in: `grill-me` → `prepare-feature` → `split-feature` → **implement-issue** (per
 sub-issue, one at a time) → `pr-loop` → merge into the epic branch → next sub-issue → … → `close-feature`. A
-standalone issue (no epic) goes straight to `main`.
+standalone issue (no epic) goes straight to the default branch.
 
 Sub-issues of an epic are implemented **sequentially**, in the user's own checkout: the next one starts only once the
 previous one's PR is merged into the epic branch, and branches from it, so each builds on the last.
@@ -51,9 +51,9 @@ Work in the user's checkout. It must be clean (`git status --porcelain` empty); 
 
 - **Base**: the issue's `parent` is an epic → its branch, named in the sub-issue body ("epic branch `…`"; else
   `git ls-remote --heads origin "feature/<epic>-*"`). If it doesn't exist, stop: `prepare-feature` creates it.
-  No parent → `main`.
-- **Name**: `bugfix/<n>-<slug>` for a `bug` label, else `feature/<n>-<slug>` (project git workflow). Slug: 2–5
-  kebab-case words from the title.
+  No parent → `<default>`, the default branch (`gh repo view --json defaultBranchRef -q .defaultBranchRef.name`).
+- **Name**: per the project's git workflow (`CLAUDE.md`); if it says nothing, `bugfix/<n>-<slug>` for a `bug`
+  label, else `feature/<n>-<slug>`. Slug: 2–5 kebab-case words from the title.
 
   ```bash
   git fetch origin
@@ -62,23 +62,23 @@ Work in the user's checkout. It must be clean (`git status --porcelain` empty); 
 
   If the branch exists already (resumed work): `git switch <branch>`, merge `origin/<base>` into it if it moved
   (no rebase once pushed), and read its commits before going on.
-- **Dependencies**: if the switch changed a lockfile (`Gemfile.lock`, `package-lock.json`) or a migration, install
+- **Dependencies**: if the switch changed a dependency lockfile or a migration, install
   and migrate with the commands in `CLAUDE.md` before running anything.
 
-### Epic branch behind `main`
+### Epic branch behind the default branch
 
 For a sub-issue, check how far the epic branch has drifted:
 
 ```bash
-git rev-list --count origin/<base>..origin/main
-git diff --name-only origin/<base>...origin/main
+git rev-list --count origin/<base>..origin/<default>
+git diff --name-only origin/<base>...origin/<default>
 ```
 
-If `main` has commits the epic branch lacks **and** any of them touch files this issue will edit, or the count is
-over 20, tell the user and propose a sync PR before going on: branch `chore/<epic>-sync-main` from the epic branch,
-`git merge origin/main` (never rebase: the epic branch is shared), resolve conflicts, run the `verify` commands, open
-a PR into the epic branch, run `pr-loop` on it; a human merges it (merge commit), then start this issue from the
-updated epic branch. Do it only on the user's yes; otherwise go on and mention the drift in the PR.
+If `<default>` has commits the epic branch lacks **and** any of them touch files this issue will edit, or the count
+is over 20, tell the user and propose a sync PR before going on: branch `chore/<epic>-sync-main` from the epic
+branch, `git merge origin/<default>` (never rebase: the epic branch is shared), resolve conflicts, run the `verify`
+commands, open a PR into the epic branch, run `pr-loop` on it; a human merges it (merge commit), then start this
+issue from the updated epic branch. Do it only on the user's yes; otherwise go on and mention the drift in the PR.
 
 ## 3. Read before coding
 
@@ -88,9 +88,9 @@ Read these yourself, up front: they are the rules the reviewer will hold the PR 
   If it has a `parent`, the parent body too (`gh issue view <parent> --json title,body`): context only, this
   issue's scope wins.
 - **ADRs.** Collect every ADR referenced in the issue body **and** the parent body (links or `ADR-NNNN` mentions,
-  e.g. `grep -oE 'ADR-[0-9]{4}'`), plus any other ADR that `docs/architecture.md` maps to a topic the change touches.
-  Read `docs/adrs/README.md`, then each ADR **as it is on the base branch**
-  (`git show origin/<base>:docs/adrs/<file>`), not `main`'s copy. Note its status:
+  e.g. `grep -oE 'ADR-[0-9]{4}'`), plus any other ADR that the architecture overview (found from `CLAUDE.md` or the
+  ADR index) maps to a topic the change touches. Read `docs/adrs/README.md`, then each ADR **as it is on the base
+  branch** (`git show origin/<base>:docs/adrs/<file>`), not the default branch's copy. Note its status:
   - **Proposed**, and the change relies on it → stop: the reviewer flags it; it needs `prepare-feature` first.
   - **Superseded** → follow the superseding ADR instead, and say so in the PR.
   - Referenced file missing → stop and ask: the spec points to something that doesn't exist.
@@ -106,8 +106,8 @@ it.
 
 - The code around the change: callers, existing patterns, existing tests. Reuse before adding. Don't ask what the
   codebase answers.
-- A consumer slice ("Uses the contract from #n"): the merged request spec / generated types are the source of truth,
-  not the issue text.
+- A consumer slice ("Uses the contract from #n"): the merged contract tests / generated contract files are the source
+  of truth, not the issue text.
 
 ## 4. Plan
 
@@ -116,16 +116,16 @@ and for each governing ADR and rule file the constraint it puts on this change (
 paths you hadn't listed, go back and read their rule files.
 
 Ask the user (`AskUserQuestion`) and wait only if the plan needs a decision the spec doesn't make: a product or UX
-choice, diverging from an Accepted ADR, a new dependency, a data migration on existing data, or a change well over
-~500 lines (propose a split instead). Otherwise go on without asking.
+choice, diverging from an Accepted ADR, a new dependency, a data migration on existing data, or a change well over the
+project's PR size guideline (`CLAUDE.md`; ~500 lines if none): propose a split instead. Otherwise go on without asking.
 
 ## 5. Implement
 
 1. **Tests first** for each acceptance criterion; run them and see them fail for the right reason.
 2. Implement the smallest change that meets the criteria. Stay in scope: anything the issue lists as "Out", or that a
    sibling issue covers, stays out — note it for the PR instead.
-3. **Derived files**: after editing a file matched by a `generate` entry in `docs/review.md` (API request specs,
-   database schemas…), run its commands and commit the output with the change. API changes: request spec and
+3. **Derived files**: after editing a file matched by a `generate` entry in `docs/review.md` (contract tests,
+   database schemas…), run its commands and commit the output with the change. API changes: contract tests and
    endpoint together.
 4. **Docs travel with the code**: update the docs the change affects (linking to ADRs, never restating them). A
    significant choice the ADRs don't cover → a Proposed ADR or a Decision Log entry, per the ADR rules. Amending an
@@ -143,30 +143,30 @@ criteria, the `Read for every review` list in `docs/review.md`, and the governin
 file whose `paths:` match a file in the final diff (`git diff --name-only origin/<base>...`), and check the diff
 against it. Fix what you find.
 
-### On device
+### In the running app
 
-If the diff touches a path matched by a `run_app` entry in `docs/review.md` and changes what the user sees or does
-(a screen, a flow, copy, a gesture, offline behaviour), run the entry's skill (e.g. `run-mobile`) and
-walk each acceptance criterion that is visible on screen, on every platform the skill supports. Save the screenshots in
-the scratchpad. Pure logic with no visible effect: skip, and say so in the PR.
+If the diff touches a path matched by a `run_app` entry in `docs/review.md` and changes what the user sees or does (a
+screen, a flow, copy), run the skill the entry names and walk each acceptance criterion that is visible on screen, on
+every platform the skill supports. Save the screenshots in the scratchpad. Pure logic with no visible effect: skip,
+and say so in the PR.
 
 A failure here is a bug like a failing test: fix it before shipping. If the app can't be run (no simulator, build
 failure you can't fix), say so in the PR and the report rather than claiming it was checked.
 
 ## 7. Ship
 
-1. **Commit** with the project format: subject `#<n>: <what it does>`, a short body if useful, `Closes #<n>`, then
-   the attribution trailer. Several commits are fine if each is a coherent step.
+1. **Commit** with the project format (`commit` in the `docs/review.md` front matter, else `CLAUDE.md`), a short
+   body if useful, `Closes #<n>`, then the attribution trailer. Several commits are fine if each is a coherent step.
 2. **Push**: `git push -u origin HEAD`.
 3. **PR**: `gh pr create --base <base> --title "#<n>: <title>" --body-file <tmp>` with a body that fills
    `.github/pull_request_template.md`: `Closes #<n>` on the first line (on an epic branch the "Close linked issues"
    workflow relies on it), a summary (what and why, criteria → tests), a **Follows** line listing the governing
    ADRs (linked) and rule files, each checklist box ticked only if true with
-   a reason for any n/a, an **Out of scope** line for what you deliberately left out, and a **Checked on device**
+   a reason for any n/a, an **Out of scope** line for what you deliberately left out, and a **Checked in the app**
    section (platforms, flows walked, result, or why it was skipped). `gh` can't upload images: list the screenshot
    paths in your report so the user can drag them into the PR. End with the PR attribution line.
 
-Never push to `main` or the epic branch directly, never force-push, never merge: a human merges every PR.
+Never push to the default branch or the epic branch directly, never force-push, never merge: a human merges every PR.
 
 ## 8. Hand over
 
@@ -174,9 +174,10 @@ Don't review your own PR in this context: the reviewer must start fresh. Report:
 
 - Issue, branch, base, PR link
 - Criteria → tests, verify results (actual counts)
-- On-device check: platforms, result, screenshot paths (or why skipped)
+- In-app check: platforms, result, screenshot paths (or why skipped)
 - Decisions made, anything left out of scope, risks, epic branch drift
-- Next step: run `pr-loop` on the PR (stay on this branch). When it reports ready, a human reviews and merges it
-  with a **merge commit** (no squash, no rebase: the loop's commits are kept for retros and evals). On an epic
-  branch, the merge closes the issue and the next sub-issue becomes ready: `implement-issue <epic> next`. Once the
-  epic has no open sub-issue, run `close-feature`.
+- Next step: run `pr-loop` on the PR (stay on this branch). When it reports ready, a human reviews and merges it with
+  a **merge commit** (no squash, no rebase: the loop's commits are kept for retros and evals). On an epic branch, the
+  merge closes the issue ("Close linked issues" workflow; without it, close it by hand with `gh issue close <n>
+  --reason completed`) and the next sub-issue becomes ready: `implement-issue <epic> next`. Once the epic has no open
+  sub-issue, run `close-feature`.

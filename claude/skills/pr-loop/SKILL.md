@@ -120,6 +120,7 @@ End with a short report:
 
 If the final state is ready, a human merges the PR with a **merge commit** (no squash, no rebase: the loop's commits
 are kept for retros and evals); never merge yourself. If the PR targets an epic branch (`feature/<epic>-…`, not
-`main`) and closes a sub-issue, check the PR body has `Closes #<sub-issue>` (the "Close linked issues" workflow
-closes it on merge, which makes the next sub-issue ready), then point to `implement-issue <epic> next`, or to
+the default branch) and closes a sub-issue, check the PR body has `Closes #<sub-issue>` (the "Close linked issues" workflow
+closes it on merge, which makes the next sub-issue ready; without that workflow, tell the human to close it by hand
+after the merge), then point to `implement-issue <epic> next`, or to
 `close-feature` once the epic has no open sub-issue.
