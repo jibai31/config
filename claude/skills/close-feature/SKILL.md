@@ -37,9 +37,10 @@ The epic branch name is in each sub-issue body ("epic branch `…`").
   close them on the user's yes (`gh issue close <n> --reason completed`).
 - A sub-issue open with no merged PR, or a PR into the epic branch still open: **stop**. Report what is left
   (`ready` / `blocked` from the script). The epic is not done.
-- A PR into the epic branch merged by squash or rebase instead of a merge commit (its `mergeCommit` has one parent:
-  `git rev-list --parents -n1 <sha>`): note it — the loop's commits are lost for the retro; its review threads are
-  not.
+- Merge strategy slips (count a `mergeCommit`'s parents with `git rev-list --parents -n1 <sha>`): a sub-issue or ADR
+  PR merged with a merge commit (two parents) instead of a squash — note it, its loop commits will land on
+  `<default>` with the rebase; a sync PR squashed (one parent) instead of merged — note it, the rebase in step 5 will
+  likely conflict on it.
 
 Work from here on the epic branch, in the user's checkout. It must be clean (`git status --porcelain`); if not, stop
 and ask. `git fetch origin && git switch feature/<epic>-<slug> && git pull --ff-only`, then install dependencies and
@@ -81,9 +82,10 @@ was built (the epic body, the sub-PRs' ADR checklist and amendment commits say w
 
 Sources: the review threads and commits of every PR merged into the epic branch (sub-issue PRs, the ADR PR, sync
 PRs), their descriptions, Decision Log entries (if the project keeps one) added on the epic branch, and anything the
-ACs check surprised you with. Merge commits keep each PR's loop commits on the branch:
-`git log --first-parent feature/<epic>-<slug>` lists the merges, `git log <merge>^1..<merge>^2` one PR's commits
-(what the fixer changed, round by round).
+ACs check surprised you with. The PRs are squashed on the branch, but GitHub keeps each PR's loop commits under
+`refs/pull/<n>/head`: `gh pr view <n> --json commits` lists them, and `git fetch origin pull/<n>/head:pr-<n>` then
+`git log <baseRefOid>..pr-<n>` (`baseRefOid` from `gh pr view <n> --json baseRefOid`) shows what the fixer changed,
+round by round.
 
 ```bash
 node <retro_dir>/scripts/retro_data.mjs <pr> <pr> ... > ${TMPDIR:-/tmp}/close-feature/<epic>/retro.json
@@ -121,8 +123,8 @@ On the user's yes:
    user can drag them in: `gh` can't upload images), and the consolidation changes.
 3. Its size is far above the per-PR guideline by design: every slice was already reviewed. Suggest `pr-loop` scoped
    to the consolidation commit only if it changed code (lint fixes), and a human review of the acceptance table.
-   A human merges it with **rebase and merge** (each sub-issue's commits land on `<default>` as they are; the epic
-   branch's merge commits are dropped). Never merge yourself. GitHub refuses the rebase if replaying the commits
+   A human merges it with **rebase and merge** (each sub-issue's squashed commit lands on `<default>` as it is; the
+   epic branch's sync merge commits are dropped). Never merge yourself. GitHub refuses the rebase if replaying the commits
    conflicts, typically after a `<default>` sync merge that resolved conflicts: then say so and let the human choose
    (resolve on the branch, or a merge commit for this epic).
 

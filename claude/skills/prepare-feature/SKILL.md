@@ -138,8 +138,8 @@ like any other change: nothing is pushed to the epic branch directly.
    close the epic when the PR merges into the epic branch. End with the PR attribution line.
 6. Run the `pr-loop` skill on the PR. Its reviewer checks the ADRs against the project's ADR rules; a fix that
    changes a decision (not just its wording) goes back to the user before it is pushed.
-7. When `pr-loop` reports ready, a human merges the PR into the epic branch with a **merge commit** (no squash, no
-   rebase: the loop's commits are kept for retros and evals). Never merge yourself.
+7. When `pr-loop` reports ready, a human merges the PR into the epic branch with **squash and merge** (the loop's
+   commits stay on the PR, under `refs/pull/<n>/head`, for retros and evals). Never merge yourself.
 
 Then update the issue body's "Related ADRs": each accepted one shows as Accepted, with a link to the ADR PR.
 

@@ -150,4 +150,4 @@ Check: `total` equals the number of planned slices, `cycle` is `null`, every pla
 
 Report: epic branch, sub-issue list with links in build order, and the next step — `implement-issue <epic> next`
 (it takes the first ready sub-issue, branches from the epic branch, PR against it), then `pr-loop` on its PR. A human
-merges it with a merge commit; then the next one. After the last one merges, run `close-feature`.
+merges it with squash and merge; then the next one. After the last one merges, run `close-feature`.

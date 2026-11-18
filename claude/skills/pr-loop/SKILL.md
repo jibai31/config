@@ -118,8 +118,9 @@ End with a short report:
 - Human threads still open (path:line, author, answered or not, link), or "none"
 - PR link
 
-If the final state is ready, a human merges the PR with a **merge commit** (no squash, no rebase: the loop's commits
-are kept for retros and evals); never merge yourself. If the PR targets an epic branch (`feature/<epic>-…`, not
+If the final state is ready, a human merges the PR with **squash and merge** (the loop's commits stay on the PR,
+under `refs/pull/<n>/head`, for retros and evals) — except a sync PR (`<default>` merged into an epic branch), which
+takes a **merge commit**, never a squash; never merge yourself. If the PR targets an epic branch (`feature/<epic>-…`, not
 the default branch) and closes a sub-issue, check the PR body has `Closes #<sub-issue>` (the "Close linked issues" workflow
 closes it on merge, which makes the next sub-issue ready; without that workflow, tell the human to close it by hand
 after the merge), then point to `implement-issue <epic> next`, or to

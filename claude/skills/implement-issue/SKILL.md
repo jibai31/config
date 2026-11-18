@@ -77,7 +77,7 @@ git diff --name-only origin/<base>...origin/<default>
 If `<default>` has commits the epic branch lacks **and** any of them touch files this issue will edit, or the count
 is over 20, tell the user and propose a sync PR before going on: branch `chore/<epic>-sync-main` from the epic
 branch, `git merge origin/<default>` (never rebase: the epic branch is shared), resolve conflicts, run the `verify`
-commands, open a PR into the epic branch, run `pr-loop` on it; a human merges it (merge commit), then start this
+commands, open a PR into the epic branch, run `pr-loop` on it; a human merges it (merge commit, never squash), then start this
 issue from the updated epic branch. Do it only on the user's yes; otherwise go on and mention the drift in the PR.
 
 ## 3. Read before coding
@@ -180,7 +180,8 @@ Don't review your own PR in this context: the reviewer must start fresh. Report:
 - In-app check: platforms, result, screenshot paths (or why skipped)
 - Decisions made, anything left out of scope, risks, epic branch drift
 - Next step: run `pr-loop` on the PR (stay on this branch). When it reports ready, a human reviews and merges it with
-  a **merge commit** (no squash, no rebase: the loop's commits are kept for retros and evals). On an epic branch, the
+  **squash and merge** (the loop's commits stay on the PR, under `refs/pull/<n>/head`, for retros and evals). On an
+  epic branch, the
   merge closes the issue ("Close linked issues" workflow; without it, close it by hand with `gh issue close <n>
   --reason completed`) and the next sub-issue becomes ready: `implement-issue <epic> next`. Once the epic has no open
   sub-issue, run `close-feature`.
