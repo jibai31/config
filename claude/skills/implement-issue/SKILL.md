@@ -10,7 +10,8 @@ an open PR that closes the issue, ready for `pr-loop`.
 
 Pipeline this skill sits in: `grill-me` → `prepare-feature` → `split-feature` → **implement-issue** (per
 sub-issue, one at a time) → `pr-loop` → merge into the epic branch → next sub-issue → … → `close-feature`. A
-standalone issue (no epic) goes straight to the default branch.
+standalone issue (no epic) goes straight to the default branch. `implement-feature` chains these steps over a whole
+epic and launches this skill in **unattended mode** (see the last section).
 
 Sub-issues of an epic are implemented **sequentially**, in the user's own checkout: the next one starts only once the
 previous one's PR is merged into the epic branch, and branches from it, so each builds on the last.
@@ -75,10 +76,11 @@ git diff --name-only origin/<base>...origin/<default>
 ```
 
 If `<default>` has commits the epic branch lacks **and** any of them touch files this issue will edit, or the count
-is over 20, tell the user and propose a sync PR before going on: branch `chore/<epic>-sync-main` from the epic
-branch, `git merge origin/<default>` (never rebase: the epic branch is shared), resolve conflicts, run the `verify`
-commands, open a PR into the epic branch, run `pr-loop` on it; a human merges it (merge commit, never squash), then start this
-issue from the updated epic branch. Do it only on the user's yes; otherwise go on and mention the drift in the PR.
+is over 20, tell the user and propose a sync PR before going on: branch
+`chore/<epic>-sync-<default>-<short sha of origin/<default>>` from the epic branch, `git merge origin/<default>`
+(never rebase: the epic branch is shared), resolve conflicts, run the `verify` commands, open a PR into the epic
+branch, run `pr-loop` on it; a human merges it (merge commit, never squash), then start this issue from the updated
+epic branch. Do it only on the user's yes; otherwise go on and mention the drift in the PR.
 
 ## 3. Read before coding
 
@@ -169,7 +171,8 @@ failure you can't fix), say so in the PR and the report rather than claiming it 
    section (platforms, flows walked, result, or why it was skipped). `gh` can't upload images: list the screenshot
    paths in your report so the user can drag them into the PR. End with the PR attribution line.
 
-Never push to the default branch or the epic branch directly, never force-push, never merge: a human merges every PR.
+Never push to the default branch or the epic branch directly, never force-push, never merge: a human merges every PR
+(or `implement-feature`, after its merge gate, for a sub-issue PR into the epic branch — never this skill).
 
 ## 8. Hand over
 
@@ -185,3 +188,21 @@ Don't review your own PR in this context: the reviewer must start fresh. Report:
   merge closes the issue ("Close linked issues" workflow; without it, close it by hand with `gh issue close <n>
   --reason completed`) and the next sub-issue becomes ready: `implement-issue <epic> next`. Once the epic has no open
   sub-issue, run `close-feature`.
+
+## Unattended mode
+
+When `implement-feature` launches you as a subagent, it says "unattended mode". Nobody can answer you, so:
+
+- **Never call `AskUserQuestion`** and never wait for a yes. Wherever this skill says to ask the user or wait for
+  their yes (a plan decision in step 4, amending an Accepted ADR, a dirty checkout), stop instead and report
+  `STATUS: needs-human` with the question and the options you see. Stop before writing code when you can; if you
+  already have, leave the checkout clean (the orchestrator needs it): commit nothing half-done, discard your
+  uncommitted edits (`git restore --staged --worktree .`, remove the untracked files you created) and say so.
+- Every other "stop and say why" in step 1 or 3 → `STATUS: needs-human` with the reason.
+- **Drift**: when the "Epic branch behind the default branch" check would propose a sync PR, don't propose it and
+  don't branch: report `STATUS: sync-needed` with the commit count and the overlapping files. The orchestrator syncs
+  and launches you again with "**Post-sync launch**" in the prompt; then go on even if some drift remains (mention
+  it in the PR).
+- Success → `STATUS: pr-opened #<pr>`, with the checkout clean and on the PR's branch. A failure you can't fix
+  (red verify, app can't build) → `STATUS: error` with the reason; never open a PR on a red branch.
+- Your report starts with that status line; keep the rest to what step 8 lists, at most 10 lines.

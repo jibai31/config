@@ -72,7 +72,7 @@ const PR_QUERY = `
             path
             line
             originalLine
-            comments(first: 50) { nodes { databaseId body url author { login } createdAt } }
+            comments(first: 50) { nodes { databaseId body url author { login __typename } createdAt } }
           }
         }
       }
