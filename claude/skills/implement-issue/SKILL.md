@@ -76,10 +76,11 @@ git diff --name-only origin/<base>...origin/<default>
 ```
 
 If `<default>` has commits the epic branch lacks **and** any of them touch files this issue will edit, or the count
-is over 20, tell the user and propose a sync PR before going on: branch `chore/<epic>-sync-main` from the epic
-branch, `git merge origin/<default>` (never rebase: the epic branch is shared), resolve conflicts, run the `verify`
-commands, open a PR into the epic branch, run `pr-loop` on it; a human merges it (merge commit, never squash), then start this
-issue from the updated epic branch. Do it only on the user's yes; otherwise go on and mention the drift in the PR.
+is over 20, tell the user and propose a sync PR before going on: branch
+`chore/<epic>-sync-<default>-<short sha of origin/<default>>` from the epic branch, `git merge origin/<default>`
+(never rebase: the epic branch is shared), resolve conflicts, run the `verify` commands, open a PR into the epic
+branch, run `pr-loop` on it; a human merges it (merge commit, never squash), then start this issue from the updated
+epic branch. Do it only on the user's yes; otherwise go on and mention the drift in the PR.
 
 ## 3. Read before coding
 

@@ -52,7 +52,7 @@ Launch subagents with the Agent tool, setting `model` and `effort` explicitly.
 gh pr list --base <epic branch> --state open --json number,title,headRefName,body
 ```
 
-- **One open PR** → resume it: `gh pr checkout <pr>`. Head `chore/<epic>-sync-<default>` → it is a sync PR, go to
+- **One open PR** → resume it: `gh pr checkout <pr>`. Head `chore/<epic>-sync-*` → it is a sync PR, go to
   step 5 (from "pr-loop"). Otherwise it is a sub-issue PR (`Closes #<n>` in the body) → go to step 3.
 - **More than one** → stop: sub-issues go one at a time; a human must sort them out.
 - **None**:
@@ -99,26 +99,33 @@ node <this_dir>/scripts/merge_gate.mjs <pr> --base <epic branch> --issue <n>
 ```
 
 (Sync PR: `--sync` instead of `--issue <n>`.) Run it unpiped; read the exit code and the JSON (`verdict`, `reasons`,
-`notes`, `review_rounds`, `head_sha`).
+`notes`, `review_rounds`, `head_sha`). The gate stops on any human input it finds: an unresolved human thread or
+reply, a PR conversation comment or a review body without an agent marker. Comments and review bodies can't be
+resolved: a human clears them by posting a PR comment starting with `/auto-merge ok` (it clears everything before
+it), then re-runs. Never post that comment yourself.
 
 - Exit `2` → if the only reason is "mergeability is UNKNOWN", run it once more; otherwise stop: **merge gate** —
   list every reason. The PR stays open and ready; a human merges (or closes) it and re-runs.
 - Exit `1` → retry once; then stop with the error.
 - Exit `0` → merge:
 
-  1. Audit comment (write the body to a temp file in the scratchpad):
-
-     ```text
-     Auto-merged by implement-feature: pr-loop ready after <review_rounds> review round(s), CI green
-     (<checks or "no checks ran">), no open human thread, no risk flag (policy from <policy_source>).
-     ```
-
-     `gh pr comment <pr> --body-file <file>`
-  2. Merge, pinned to the commit the gate checked:
+  1. Merge, pinned to the commit the gate checked:
      - Sub-issue PR: `gh pr merge <pr> --squash --match-head-commit <head_sha> --subject "#<n>: <title>"
        --body "Closes #<n>"` (title from the PR, already `#<n>: …`: don't double the prefix).
      - Sync PR: `gh pr merge <pr> --merge --match-head-commit <head_sha>` — a merge commit, **never** a squash.
      Never pass `--delete-branch` (`close-feature --merged` cleans up branches) and never `--admin`.
+     **Merge fails** (head moved, branch protection, required check missing, anything else) → don't retry and
+     don't comment: stop with **merge failed** and gh's error. The PR stays open; a human merges it and re-runs.
+  2. Only once `gh pr view <pr> --json state -q .state` is `MERGED`, the audit comment (write the body to a temp
+     file in the scratchpad; keep the marker line, the gate uses it to skip this comment):
+
+     ```text
+     <!-- implement-feature -->
+     Auto-merged by implement-feature: pr-loop ready after <review_rounds> review round(s), CI green
+     (<checks or "no checks ran">), no open human comment, no risk flag (policy from <policy_source>).
+     ```
+
+     `gh pr comment <pr> --body-file <file>`
   3. Sub-issue PR only: `node <this_dir>/scripts/wait_issue_closed.mjs <n> --pr <pr>` (waits for the "Close linked
      issues" workflow, closes by hand after 3 min).
   4. `git switch <epic branch> && git pull --ff-only`.
@@ -128,17 +135,24 @@ node <this_dir>/scripts/merge_gate.mjs <pr> --base <epic branch> --issue <n>
 
 Only when the implementer reported `sync-needed`, or to resume an open sync PR (then skip to "pr-loop" below).
 
+`<sync branch>` = `chore/<epic>-sync-<default>-<short sha of origin/<default>>`: one name per sync, since merged
+branches are kept until `close-feature --merged` (e.g. `chore/21-sync-main-3f9c2ab`).
+
 ```bash
 git fetch origin
-git switch -c chore/<epic>-sync-<default> origin/<epic branch>
+git switch -c <sync branch> origin/<epic branch>
 git merge --no-edit origin/<default>
 ```
 
-- **Conflict** → `git merge --abort`, `git switch <epic branch>`, `git branch -D chore/<epic>-sync-<default>`, stop:
+- **Branch exists** (locally or on origin: `git switch -c` fails, or the push is rejected) → a sync of this same
+  `<default>` commit was already tried: its PR was closed without merging, or a stale local branch remains. Stop and
+  say so (name the branch and its PR, if any); a human decides whether to delete it and retry.
+- **Conflict** → `git merge --abort`, `git switch <epic branch>`, `git branch -D <sync branch>`, stop:
   **sync has conflicts, a human resolves them** (list the conflicting files).
 - **Clean** → if the merge changed a dependency lockfile or a migration, install and migrate (commands in
   `CLAUDE.md`). Run the `full_verify` commands from the `docs/review.md` front matter (else the `verify` ones for the
-  merged paths); red → stop, don't push. Green → push and open the PR:
+  merged paths). **Red** → don't push: `git switch <epic branch>`, `git branch -D <sync branch>` (a re-run starts the
+  sync afresh), stop: **sync breaks the build**, list the failing commands. Green → push and open the PR:
 
   ```bash
   git push -u origin HEAD
@@ -158,8 +172,8 @@ On every stop (including epic done and cap reached):
 2. Send one push notification (PushNotification tool, if available; load it with ToolSearch): `Epic #<epic>: <state>
    — <one-line reason>`.
 3. Report:
-   - **Final state**: epic done / cap reached / decision needed / merge gate / pr-loop stopped (its state) / sync
-     conflict / error — with the reason and what the human should do next.
+   - **Final state**: epic done / cap reached / decision needed / merge gate / merge failed / pr-loop stopped (its
+     state) / sync conflict / sync branch exists / error — with the reason and what the human should do next.
    - **Per sub-issue this run**: issue, PR link, review rounds, fixer models, merged (commit) or where it stopped,
      screenshot paths from the implementer (the PR body lists them; a human can drag them in at epic review).
    - Sync PRs merged, if any.

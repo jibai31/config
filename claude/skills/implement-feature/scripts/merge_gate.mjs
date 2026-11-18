@@ -15,15 +15,22 @@
 // No `auto_merge` key: auto-merge is off, the verdict is always "stop".
 // --sync (a sync PR merging the default branch into the epic): the path check is skipped, the code is already on
 // the default branch.
+//
+// Human input: any PR conversation comment, non-empty review body (except an approval) or review-thread comment that
+// is neither from a bot nor carries an agent marker stops the gate (in a review thread, only while it is unresolved).
+// Conversation comments and review bodies can't be resolved: a later human PR comment starting with `/auto-merge ok`
+// clears every one posted before it.
+// The agents post under the user's account, so the markers are the only way to tell them apart.
 
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  AGENT_MARKERS,
   COMMENT_MARKER,
   FIX_MARKER,
+  REVIEW_MARKER,
   fetchPullRequest,
-  gh,
   ghJson,
   repo,
   reviewMarkers,
@@ -96,6 +103,27 @@ function globToRegExp(glob) {
   return new RegExp(`^${re}$`);
 }
 
+// Marker of the audit comment implement-feature posts after a merge.
+export const AUTO_MERGE_MARKER = '<!-- implement-feature -->';
+const MARKERS = [...AGENT_MARKERS, AUTO_MERGE_MARKER];
+
+// A human PR comment starting with this clears the human conversation comments and review bodies before it.
+const OK_COMMAND = /^\s*\/auto-merge ok\b/i;
+
+const isBot = (login, type) => type === 'Bot' || /\[bot\]$/.test(login ?? '');
+const isAgent = (body) => MARKERS.some((m) => body.includes(m)) || new RegExp(`<!--\\s*${REVIEW_MARKER}\\b`).test(body);
+const isHuman = (body, login, type) => !isBot(login, type) && !isAgent(body ?? '');
+
+// `gh pr checks` exits non-zero when checks fail or are pending (stdout still holds the JSON), and when there are
+// none (stdout empty, "no checks reported" on stderr). Any other failure is an error: never read it as "no checks".
+function prChecks(pr) {
+  const res = spawnSync('gh', ['pr', 'checks', String(pr), '--json', 'name,bucket'], { encoding: 'utf8' });
+  const out = res.stdout?.trim();
+  if (out) return JSON.parse(out);
+  if (res.status === 0 || /no checks reported/i.test(res.stderr ?? '')) return [];
+  throw new Error(`gh pr checks ${pr} failed (exit ${res.status}):\n${res.stderr ?? res.error?.message}`);
+}
+
 const fixReplies = (thread) =>
   thread.comments.nodes.filter((c) => c.body.includes(FIX_MARKER)).map((c) => c.body.replace(FIX_MARKER, '').trim());
 
@@ -123,6 +151,7 @@ runMain(() => {
   if (view.mergeable === 'CONFLICTING') reasons.push('PR has merge conflicts');
   else if (view.mergeable !== 'MERGEABLE') reasons.push(`mergeability is ${view.mergeable}: retry in a minute`);
   if (view.reviewDecision === 'CHANGES_REQUESTED') reasons.push('a reviewer requested changes');
+  if (view.reviewDecision === 'REVIEW_REQUIRED') reasons.push('branch protection requires an approving review');
   if (args.issue && !new RegExp(`\\b(close[sd]?|fix(e[sd])?|resolve[sd]?)\\s+#${args.issue}\\b`, 'i').test(view.body)) {
     reasons.push(`PR body lacks \`Closes #${args.issue}\``);
   }
@@ -145,6 +174,10 @@ runMain(() => {
     const replies = fixReplies(t);
     const lastIsFix = t.comments.nodes.at(-1).body.includes(FIX_MARKER);
     if (!ai && !t.isResolved) reasons.push(`open human thread by ${first.author?.login}: ${first.url}`);
+    if (ai && !t.isResolved) {
+      const human = t.comments.nodes.find((c) => isHuman(c.body, c.author?.login, c.author?.__typename));
+      if (human) reasons.push(`human reply by ${human.author?.login} in an open review thread: ${human.url}`);
+    }
     if (ai && !t.isResolved && severity === 'blocking') reasons.push(`open blocking thread: ${first.url}`);
     if (ai && !t.isResolved && severity === 'should-fix' && !lastIsFix) {
       reasons.push(`unanswered should-fix thread: ${first.url}`);
@@ -160,6 +193,27 @@ runMain(() => {
     } else notes.push(`${wontFix.length} "Won't fix" answer(s) on blocking / should-fix threads`);
   }
 
+  // Human input outside review threads: PR conversation comments and review bodies. These can't be resolved, so a
+  // human clears them with a later PR comment starting with `/auto-merge ok` (open review threads still need
+  // resolving).
+  const issueComments = ghJson(['api', '--paginate', '--slurp', `repos/${r}/issues/${args.pr}/comments?per_page=100`]).flat();
+  const reviews = ghJson(['api', '--paginate', '--slurp', `repos/${r}/pulls/${args.pr}/reviews?per_page=100`]).flat();
+  const human = (body, user) => isHuman(body, user?.login, user?.type);
+  const okAt = issueComments
+    .filter((c) => human(c.body, c.user) && OK_COMMAND.test(c.body ?? ''))
+    .map((c) => Date.parse(c.created_at))
+    .reduce((a, b) => Math.max(a, b), -Infinity);
+  if (okAt > -Infinity) notes.push(`human comments up to ${new Date(okAt).toISOString()} cleared by \`/auto-merge ok\``);
+  for (const c of issueComments) {
+    if (!human(c.body, c.user) || OK_COMMAND.test(c.body ?? '') || Date.parse(c.created_at) <= okAt) continue;
+    reasons.push(`human PR comment by ${c.user?.login} (reply \`/auto-merge ok\` to clear): ${c.html_url}`);
+  }
+  for (const rv of reviews) {
+    if (!rv.body?.trim() || rv.state === 'APPROVED' || !human(rv.body, rv.user)) continue;
+    if (Date.parse(rv.submitted_at) <= okAt) continue;
+    reasons.push(`human review by ${rv.user?.login} (reply \`/auto-merge ok\` to clear): ${rv.html_url}`);
+  }
+
   // Risk flag: paths
   const files = ghJson(['api', '--paginate', '--slurp', `repos/${r}/pulls/${args.pr}/files?per_page=100`])
     .flat()
@@ -173,9 +227,7 @@ runMain(() => {
   }
 
   // CI on the head commit
-  // `gh pr checks` exits non-zero when checks fail or are pending, and prints nothing when there are none.
-  const checksOut = gh(['pr', 'checks', String(args.pr), '--json', 'name,bucket'], { allowFailure: true }).trim();
-  const checks = checksOut ? JSON.parse(checksOut) : [];
+  const checks = prChecks(args.pr);
   if (!checks.length) notes.push('no CI checks reported for this PR');
   for (const c of checks) {
     if (c.bucket === 'pending') reasons.push(`check pending: ${c.name}`);
