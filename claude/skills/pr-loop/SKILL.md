@@ -120,8 +120,9 @@ End with a short report:
 
 If the final state is ready, a human merges the PR with **squash and merge** (the loop's commits stay on the PR,
 under `refs/pull/<n>/head`, for retros and evals) — except a sync PR (`<default>` merged into an epic branch), which
-takes a **merge commit**, never a squash; never merge yourself. If the PR targets an epic branch (`feature/<epic>-…`, not
+takes a **merge commit**, never a squash; never merge yourself. (When `implement-feature` runs this loop, it applies
+its own merge gate after your report and may merge into the epic branch; this loop still never merges.) If the PR targets an epic branch (`feature/<epic>-…`, not
 the default branch) and closes a sub-issue, check the PR body has `Closes #<sub-issue>` (the "Close linked issues" workflow
 closes it on merge, which makes the next sub-issue ready; without that workflow, tell the human to close it by hand
-after the merge), then point to `implement-issue <epic> next`, or to
-`close-feature` once the epic has no open sub-issue.
+after the merge), then point to `implement-issue <epic> next` (or `implement-feature <epic>` to chain the rest), or
+to `close-feature` once the epic has no open sub-issue.
