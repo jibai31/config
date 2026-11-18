@@ -61,7 +61,12 @@ gh pr list --base <epic branch> --state open --json number,title,headRefName,bod
      - `all_closed` → stop: **epic done**, next step `close-feature <epic>`.
      - `cycle` non-null, or `ready` empty → stop: name the `stuck` / `blocked` / `external_blockers` issues, point
        to `split-feature` re-plan for stuck ones.
-     - Otherwise `<n>` = the lowest number in `ready`. Go to step 2.
+     - Otherwise `<n>` = the lowest number in `ready`. **Already merged?** A human may have merged its PR after a
+       gate or merge-failed stop, or a run may have stopped between merge and issue close:
+       `gh pr list --base <epic branch> --state merged --search "#<n> in:body" --json number,body`, keep the ones
+       whose body has `Closes #<n>` (same keywords as the gate). One found → `node <this_dir>/scripts/wait_issue_closed.mjs
+       <n> --pr <pr> --timeout 0`, `git switch <epic branch> && git pull --ff-only`, back to step 1 (count it in
+       `merged` only if this run merged it). None → step 2.
 
 ## 2. Implement (subagent)
 
@@ -72,6 +77,9 @@ Launch the implementer (Opus, high), fresh context:
 > instead. Reply with only, first line exactly one of `STATUS: pr-opened #<pr>`, `STATUS: sync-needed`,
 > `STATUS: needs-human`, `STATUS: error`; then at most 10 lines: the reason (for needs-human: the question and the
 > options you see), criteria → tests, verify counts, in-app check result and screenshot paths, out of scope, risks.
+
+When relaunching after a sync for this sub-issue, append to the prompt: "**Post-sync launch**: a sync PR was just
+merged into the epic branch; go on even if some drift remains (mention it in the PR)."
 
 Read the first line:
 

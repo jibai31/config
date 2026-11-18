@@ -201,7 +201,8 @@ When `implement-feature` launches you as a subagent, it says "unattended mode". 
 - Every other "stop and say why" in step 1 or 3 → `STATUS: needs-human` with the reason.
 - **Drift**: when the "Epic branch behind the default branch" check would propose a sync PR, don't propose it and
   don't branch: report `STATUS: sync-needed` with the commit count and the overlapping files. The orchestrator syncs
-  and launches you again; on that second launch, go on even if some drift remains.
+  and launches you again with "**Post-sync launch**" in the prompt; then go on even if some drift remains (mention
+  it in the PR).
 - Success → `STATUS: pr-opened #<pr>`, with the checkout clean and on the PR's branch. A failure you can't fix
   (red verify, app can't build) → `STATUS: error` with the reason; never open a PR on a red branch.
 - Your report starts with that status line; keep the rest to what step 8 lists, at most 10 lines.
